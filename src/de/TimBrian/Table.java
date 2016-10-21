@@ -22,6 +22,7 @@ public class Table {
 
     //TODO Thread
     public void nextTurn() {
-
+        if (players.size() < 2)
+            System.out.println("Zu wenig Spieler vorhanden.");
     }
 }
