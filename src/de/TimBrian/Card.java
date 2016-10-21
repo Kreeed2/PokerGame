@@ -1,8 +1,7 @@
 package de.TimBrian;
 
-/**
- * Created by le24wov on 21.10.16.
- */
+import de.TimBrian.enums.Color;
+
 public class Card {
     private int value;
     private Color color;

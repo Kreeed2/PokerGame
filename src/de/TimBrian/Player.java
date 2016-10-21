@@ -1,14 +1,24 @@
 package de.TimBrian;
 
-/**
- * Created by le24wov on 21.10.16.
- */
+import de.TimBrian.enums.Role;
+
 public class Player {
     private int chips;
     private String name;
+    private Stack hand;
+    private Role currentRole;
 
     public Player(int chips, String name){
         this.chips = chips;
         this.name = name;
+        hand = new Stack(false);
+    }
+
+    public void setCurrentRole(Role r) {
+        currentRole = r;
+    }
+
+    public Role getCurrentRole() {
+        return currentRole;
     }
 }

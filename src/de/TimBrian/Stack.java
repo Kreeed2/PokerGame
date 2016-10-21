@@ -1,18 +1,19 @@
 package de.TimBrian;
 
+import de.TimBrian.enums.Color;
+
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-/**
- * Created by le24wov on 21.10.16.
- */
 public class Stack {
-    public List<Card> cards;
+    private List<Card> cards;
 
-    public Stack() {
-        fillStack();
+    //full boolean um leere Hände zu ermöglichen
+    public Stack(boolean full) {
+        if(full)
+            fillStack();
     }
 
     private void fillStack() {
@@ -24,7 +25,14 @@ public class Stack {
                 cards.add(new Card(j,c));
             }
         }
-
         Collections.shuffle(cards, new Random(seed));
+    }
+
+    public void removeCard(int index) {
+        cards.remove(index);
+    }
+
+    public void addCard(Card c) {
+        cards.add(c);
     }
 }
