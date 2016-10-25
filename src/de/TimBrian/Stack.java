@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Random;
 
 public class Stack {
-    private List<Card> cards;
+    private List<Card> cards = new LinkedList<>();
 
     //full boolean um leere Hände zu ermöglichen
     public Stack(boolean full) {
@@ -28,8 +28,8 @@ public class Stack {
         Collections.shuffle(cards, new Random(seed));
     }
 
-    public void removeCard(int index) {
-        cards.remove(index);
+    public Card removeCard(int index) {
+        return cards.remove(index);
     }
 
     public void addCard(Card c) {

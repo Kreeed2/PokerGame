@@ -8,5 +8,7 @@ public class Main {
             table.addPlayer(new Player(i + 1));
         }
         table.nextTurn();
+        table.nextTurn();
+        int test = 0;
     }
 }
