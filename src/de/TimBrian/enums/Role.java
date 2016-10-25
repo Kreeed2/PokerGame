@@ -1,5 +1,7 @@
 package de.TimBrian.enums;
 
 public enum Role {
-    DEFAULT, DEALER, SMALL, BIG
+    //TODO: better special case handling
+    //Dealerspecial = Dealer + Small
+    DEFAULT, DEALER, DEALERSPECIAL, SMALL, BIG
 }
