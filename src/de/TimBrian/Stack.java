@@ -10,12 +10,19 @@ import java.util.Random;
 public class Stack {
     private List<Card> cards = new LinkedList<>();
 
-    //full boolean um leere Hände zu ermöglichen
+    /**
+     * Creates a new card stack
+     *
+     * @param full whether or not the card stack should be filled
+     */
     public Stack(boolean full) {
         if(full)
             fillStack();
     }
 
+    /**
+     * fills the card stack with a full deck and shuffles them
+     */
     private void fillStack() {
         cards = new LinkedList<>();
         long seed = System.nanoTime();
@@ -28,11 +35,23 @@ public class Stack {
         Collections.shuffle(cards, new Random(seed));
     }
 
-    public Card removeCard(int index) {
+    public Card remove(int index) {
         return cards.remove(index);
     }
 
-    public void addCard(Card c) {
+    public Card get(int index) {
+        return cards.get(index);
+    }
+
+    public void add(Card c) {
         cards.add(c);
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (Card c : cards) {
+            sb.append("\t" + c.toString() + "\n");
+        }
+        return sb.toString();
     }
 }

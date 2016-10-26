@@ -32,4 +32,8 @@ public class Player {
     public void setCurrentRole(Role r) {
         currentRole = r;
     }
+
+    public String toString() {
+        return name + ":\n" + hand.toString() + "\tchips: " + chips;
+    }
 }

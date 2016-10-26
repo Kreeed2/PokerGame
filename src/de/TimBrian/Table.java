@@ -18,6 +18,7 @@ public class Table {
         players.add(p);
     }
 
+    //TODO solve role assignment after all but two players are defeated
     public void removePlayer(Player p) {
         if (p.getCurrentRole() == Role.DEALER)
             dealerPos--;
@@ -25,7 +26,11 @@ public class Table {
         players.remove(p);
     }
 
-    //TODO Thread, solve role assignment after all but two players are defeated
+    //TODO Thread
+
+    /**
+     * main game tick method; calls assignRole and distributeCards
+     */
     public void nextTurn() {
         if (turnCounter == 0)
             assignRole();
@@ -33,29 +38,32 @@ public class Table {
         turnCounter++;
     }
 
+    /**
+     * used for giving players and table cards according to game situation
+     */
     private void distributeCards() {
         switch (turnCounter) {
             case 0:
                 //zwei Karten an alle Spieler
                 for (Player p : players) {
-                    p.hand.addCard(cardStack.removeCard(0));
-                    p.hand.addCard(cardStack.removeCard(1));
+                    p.hand.add(cardStack.remove(0));
+                    p.hand.add(cardStack.remove(1));
                 }
                 break;
             case 1:
                 //drei offene Karten
                 for (int i = 0; i < 3; i++) {
-                    tableCards.addCard(cardStack.removeCard(i));
+                    tableCards.add(cardStack.remove(i));
                 }
                 break;
             default:
-                tableCards.addCard(cardStack.removeCard(0));
+                tableCards.add(cardStack.remove(0));
                 break;
         }
     }
 
     /**
-     * Weißt die jeweilige Rolle den Spielern zu
+     * assigns roles to every player
      */
     private void assignRole() {
         if (round == 0)
