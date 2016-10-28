@@ -1,6 +1,6 @@
 package de.TimBrian;
 
-import de.TimBrian.enums.Color;
+import handChecker.PokerCard;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -8,28 +8,19 @@ import java.util.List;
 import java.util.Random;
 
 public class Stack {
-    private List<Card> cards = new LinkedList<>();
-
-    /**
-     * Creates a new card stack
-     *
-     * @param full whether or not the card stack should be filled
-     */
-    public Stack(boolean full) {
-        if(full)
-            fillStack();
-    }
+    //TODO Getter to make cards private
+    public List<Card> cards = new LinkedList<>();
 
     /**
      * fills the card stack with a full deck and shuffles them
      */
-    private void fillStack() {
+    public void fillStack() {
         cards = new LinkedList<>();
         long seed = System.nanoTime();
 
-        for (Color c : Color.values()) {
-            for (int j = 2; j < 15; j++) {
-                cards.add(new Card(j,c));
+        for (PokerCard.Color c : PokerCard.Color.values()) {
+            for (PokerCard.Value v : PokerCard.Value.values()) {
+                cards.add(new Card(v,c));
             }
         }
         Collections.shuffle(cards, new Random(seed));

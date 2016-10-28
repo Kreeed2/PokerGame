@@ -3,7 +3,7 @@ package de.TimBrian;
 import de.TimBrian.enums.Role;
 
 public class Player {
-    public Stack hand = new Stack(false);
+    public Stack hand = new Stack();
     private int chips = 10000;
     private String name;
     private Role currentRole = Role.DEFAULT;

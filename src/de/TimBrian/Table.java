@@ -8,8 +8,7 @@ import java.util.Random;
 
 public class Table {
     List<Player> players = new LinkedList<>();
-    Stack tableCards = new Stack(false);
-    Stack cardStack = new Stack(true);
+    Stack cardStack = new Stack();
     int turnCounter = 0;
     int round = 0;
     int dealerPos;
@@ -51,13 +50,23 @@ public class Table {
                 }
                 break;
             case 1:
-                //drei offene Karten
+                //drei offene Karten werden in jede der Hände gelegt
+                for (Player p : players)
+                {
+                    for (int i = 0; i < 3; i++) {
+                        p.hand.add(cardStack.get(i));
+                    }
+                }
                 for (int i = 0; i < 3; i++) {
-                    tableCards.add(cardStack.remove(i));
+                    cardStack.remove(i);
                 }
                 break;
             default:
-                tableCards.add(cardStack.remove(0));
+                for (Player p : players)
+                {
+                    p.hand.add(cardStack.get(0));
+                }
+                cardStack.remove(0);
                 break;
         }
     }
