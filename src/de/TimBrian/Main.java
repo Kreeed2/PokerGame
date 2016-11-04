@@ -2,6 +2,8 @@ package de.TimBrian;
 
 import handChecker.HandChecker;
 
+import java.util.List;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -22,10 +24,12 @@ public class Main {
         table.nextTurn();
         table.nextTurn();
 
+        List<Player> test = table.decideWinner();
+
         //System.out.print(table.cardStack.toString());
 
 
         //table.nextTurn();
-        int test = 0;
+        int nmkfl = 0;
     }
 }

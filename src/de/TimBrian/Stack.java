@@ -9,7 +9,7 @@ import java.util.Random;
 
 public class Stack {
     //TODO Getter to make cards private
-    public List<Card> cards = new LinkedList<>();
+    public List<PokerCard> cards = new LinkedList<>();
 
     /**
      * fills the card stack with a full deck and shuffles them
@@ -26,21 +26,25 @@ public class Stack {
         Collections.shuffle(cards, new Random(seed));
     }
 
-    public Card remove(int index) {
+    public PokerCard remove(int index) {
         return cards.remove(index);
     }
 
-    public Card get(int index) {
+    public PokerCard get(int index) {
         return cards.get(index);
     }
 
-    public void add(Card c) {
+    public void add(PokerCard c) {
         cards.add(c);
+    }
+
+    public List<PokerCard> getCards() {
+        return cards;
     }
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (Card c : cards) {
+        for (PokerCard c : cards) {
             sb.append("\t" + c.toString() + "\n");
         }
         return sb.toString();

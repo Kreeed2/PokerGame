@@ -1,14 +1,17 @@
 package de.TimBrian;
 
 import de.TimBrian.enums.Role;
+import handChecker.HandChecker;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
 public class Table {
+    HandChecker handChecker = new HandChecker();
     List<Player> players = new LinkedList<>();
     Stack cardStack = new Stack();
+    Stack openCards = new Stack();
     int turnCounter = 0;
     int round = 0;
     int dealerPos;
@@ -25,7 +28,30 @@ public class Table {
         players.remove(p);
     }
 
-    //TODO Thread
+    public List<Player> decideWinner() {
+        //Copy
+        List<Player> comparePlayers = new LinkedList<>(players);
+        int pos = 0;
+        while (comparePlayers.size() > 1) {
+            if (pos == comparePlayers.size())
+                break;
+            else {
+                //Fall das zwei den gleichen HandValue haben
+                switch (comparePlayers.get(pos).getHandValue(openCards.getCards()).compareTo(comparePlayers.get(pos + 1).getHandValue(openCards.getCards()))) {
+                    case 1:
+                        comparePlayers.remove(pos + 1);
+                        break;
+                    case -1:
+                        comparePlayers.remove(pos);
+                        break;
+                    case 0:
+                        pos++;
+                        break;
+                }
+            }
+        }
+        return comparePlayers;
+    }
 
     /**
      * main game tick method; calls assignRole and distributeCards
@@ -50,23 +76,14 @@ public class Table {
                 }
                 break;
             case 1:
-                //drei offene Karten werden in jede der Hände gelegt
-                for (Player p : players)
+                //drei offene Karten
+                for (int i=0;i<3;i++)
                 {
-                    for (int i = 0; i < 3; i++) {
-                        p.hand.add(cardStack.get(i));
-                    }
-                }
-                for (int i = 0; i < 3; i++) {
-                    cardStack.remove(i);
+                    openCards.add(cardStack.remove(0));
                 }
                 break;
             default:
-                for (Player p : players)
-                {
-                    p.hand.add(cardStack.get(0));
-                }
-                cardStack.remove(0);
+                openCards.add(cardStack.remove(0));
                 break;
         }
     }
