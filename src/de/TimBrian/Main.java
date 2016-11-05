@@ -1,7 +1,5 @@
 package de.TimBrian;
 
-import handChecker.HandChecker;
-
 import java.util.List;
 
 public class Main {
@@ -9,7 +7,6 @@ public class Main {
     public static void main(String[] args) {
         Table table = new Table();
         table.cardStack.fillStack();
-        HandChecker hc = new HandChecker();
 
         for (int i = 0; i < 4; i++) {
             table.addPlayer(new Player(i + 1));

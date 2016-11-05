@@ -33,10 +33,9 @@ public class Table {
         List<Player> comparePlayers = new LinkedList<>(players);
         int pos = 0;
         while (comparePlayers.size() > 1) {
-            if (pos == comparePlayers.size())
+            if (pos == comparePlayers.size() - 1)
                 break;
             else {
-                //Fall das zwei den gleichen HandValue haben
                 switch (comparePlayers.get(pos).getHandValue(openCards.getCards()).compareTo(comparePlayers.get(pos + 1).getHandValue(openCards.getCards()))) {
                     case 1:
                         comparePlayers.remove(pos + 1);
