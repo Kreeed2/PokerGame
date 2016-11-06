@@ -15,6 +15,7 @@ public class Player {
     private int chips = 10000;
     private String name;
     private Role currentRole = Role.DEFAULT;
+    private Pot playerpot = new Pot(1);
 
     public Player(int chips, String name){
         this.chips = chips;
@@ -30,7 +31,17 @@ public class Player {
     }
 
     public void setChips(int amount) {
-        chips = amount;
+        chips = chips - amount;
+        //playerpot.setChips(amount);
+    }
+
+    public void raise(int amount) {
+        chips = chips - amount;
+        playerpot.raise(amount);
+    }
+
+    public int getPot() {
+        return playerpot.getChips();
     }
 
     public Role getCurrentRole() {
@@ -55,6 +66,6 @@ public class Player {
     }
 
     public String toString() {
-        return name + ":\n" + hand.toString() + "\tchips: " + chips;
+        return name + ":\n" + hand.toString() + "\tchips:\t\t" + chips + "\n\tplayerpot:\t" + playerpot.getChips();
     }
 }

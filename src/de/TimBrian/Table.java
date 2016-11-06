@@ -16,6 +16,12 @@ public class Table {
     int round = 0;
     int dealerPos;
 
+    List<Pot> pots = new LinkedList<>();
+
+    public void addPot(Pot po) {
+        pots.add(po);
+    }
+
     public void addPlayer(Player p) {
         players.add(p);
     }
@@ -108,5 +114,14 @@ public class Table {
             players.get((dealerPos + 2) % players.size()).setCurrentRole(Role.BIG);
         }
 
+    }
+
+    public Player proofPot(int maxPlayerPot, Player max){
+        for (Player p : players) {
+            if (p.getPot()<maxPlayerPot) {
+                return p;
+            }
+        }
+        return max;
     }
 }

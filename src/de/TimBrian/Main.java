@@ -12,6 +12,25 @@ public class Main {
             table.addPlayer(new Player(i + 1));
         }
 
+        table.addPot(new Pot(0));
+
+        for (Player p : table.players) {
+            int maxPlayerPot = 0;
+            int amount = 1000;
+            if (maxPlayerPot > amount && 0 != amount) {
+                System.out.println("Minimum chips: " + maxPlayerPot);
+            }
+            else if (amount == 0) {}//spieler spielt nächste Runde nicht mit
+            else {
+                maxPlayerPot = amount;
+            }
+            p.raise(amount);
+        }
+
+        for (Pot po : table.pots) {
+            System.out.println(po.toString());
+        }
+
         //Rollenverteilung und Handkarten Verteilung
         table.nextTurn();
         for (Player p : table.players) {
