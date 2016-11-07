@@ -29,10 +29,10 @@ public class Pot {
         chips = chips + amount;
     }
 
-    public void addChips(Player p, int playerchips){
+    /*public void addChips(Player p, int playerchips){
         this.chips = this.chips + playerchips;
         p.setChips(playerchips);
-    }
+    }*/
 
     public String toString() {
         return name + ":\n" + "\tchips: " + chips;

@@ -7,6 +7,7 @@ public class Main {
     public static void main(String[] args) {
         Table table = new Table();
         table.cardStack.fillStack();
+        int blind = 1000;
 
         for (int i = 0; i < 4; i++) {
             table.addPlayer(new Player(i + 1));

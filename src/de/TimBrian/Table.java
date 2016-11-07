@@ -118,7 +118,7 @@ public class Table {
 
     public Player proofPot(int maxPlayerPot, Player max){
         for (Player p : players) {
-            if (p.getPot()<maxPlayerPot) {
+            if (p.getPlpot()<maxPlayerPot) {
                 return p;
             }
         }
