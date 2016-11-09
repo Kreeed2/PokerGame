@@ -14,7 +14,7 @@ public class Stack {
      * fills the card stack with a full deck and shuffles them
      */
     public void fillStack() {
-        cards = new LinkedList<>();
+        cards.clear();
         long seed = System.nanoTime();
 
         for (PokerCard.Color c : PokerCard.Color.values()) {
