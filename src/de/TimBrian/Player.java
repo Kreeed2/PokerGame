@@ -15,7 +15,8 @@ public class Player {
     private int chips = 10000;
     private String name;
     private Role currentRole = Role.DEFAULT;
-    private int plpot = 0;
+    private int playerPot = 0;
+    private boolean inRound = true;
 
     public Player(int chips, String name){
         this.chips = chips;
@@ -34,13 +35,30 @@ public class Player {
         chips = chips - amount;
     }
 
-    public int getPlpot() {
-        return plpot;
+    public int getPlayerPot() {
+        return playerPot;
     }
 
-    public void raise(int amount) {
-        chips = chips - amount;
-        plpot = plpot + amount;
+    public void placeBet(int amount, Table table) throws Exception {
+        //fold
+        if (amount < 0) {
+            inRound = false;
+            return;
+        }
+        //enough chips and raise/call/check
+        if (amount <= chips) {
+            if (table.maxBet <= amount) {
+                playerPot += amount;
+                chips -= amount;
+                table.maxBet = playerPot;
+
+            } //Allin
+            else if (chips == amount) {
+                playerPot += amount;
+                chips -= amount;
+            } else
+                throw new Exception("bet is lower than maxBet");
+        }
     }
 
     public Role getCurrentRole() {
@@ -65,6 +83,10 @@ public class Player {
     }
 
     public String toString() {
-        return name + ":\n" + hand.toString() + "\tchips:\t\t" + chips + "\n\tplayerpot:\t" + plpot;
+        return name + ":\n" + hand.toString() + "\tchips:\t\t" + chips + "\n\tplayerpot:\t" + playerPot;
+    }
+
+    public boolean isInRound() {
+        return inRound;
     }
 }

@@ -3,6 +3,8 @@ package de.TimBrian;
 import de.TimBrian.enums.Role;
 import handChecker.HandChecker;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -15,12 +17,8 @@ public class Table {
     int turnCounter = 0;
     int round = 0;
     int dealerPos;
-
-    List<Pot> pots = new LinkedList<>();
-
-    public void addPot(Pot po) {
-        pots.add(po);
-    }
+    int maxBet = 0;
+    int blind = 100;
 
     public void addPlayer(Player p) {
         players.add(p);
@@ -35,7 +33,6 @@ public class Table {
     }
 
     public List<Player> decideWinner() {
-        //Copy
         List<Player> comparePlayers = new LinkedList<>(players);
         int pos = 0;
         while (comparePlayers.size() > 1) {
@@ -62,10 +59,44 @@ public class Table {
      * main game tick method; calls assignRole and distributeCards
      */
     public void nextTurn() {
-        if (turnCounter == 0)
-            assignRole();
+        maxBet = 0;
         distributeCards();
+        if (turnCounter == 0) {
+            assignRole();
+            playerBlind();
+        } else
+            playerBet();
         turnCounter++;
+    }
+
+    /**
+     * special preflop bet
+     */
+    private void playerBlind() {
+        try {
+            players.get((dealerPos + 1) % players.size()).placeBet(blind/2, this);
+            players.get((dealerPos + 2) % players.size()).placeBet(blind, this);
+
+            for(int i = (dealerPos + 3) % players.size(); i < players.size(); i++) {
+                InputStreamReader isr = new InputStreamReader(System.in);
+                BufferedReader br = new BufferedReader(isr);
+                players.get(i).placeBet(Integer.parseInt(br.readLine()), this);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void playerBet() {
+        for(int i = (dealerPos + 1) % players.size(); i < players.size(); i++) {
+            try {
+                InputStreamReader isr = new InputStreamReader(System.in);
+                BufferedReader br = new BufferedReader(isr);
+                players.get(i).placeBet(Integer.parseInt(br.readLine()), this);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -116,12 +147,12 @@ public class Table {
 
     }
 
-    public Player proofPot(int maxPlayerPot, Player max){
-        for (Player p : players) {
-            if (p.getPlpot()<maxPlayerPot) {
-                return p;
-            }
+    public List<Player> getActivePlayers() {
+        List<Player> out = new LinkedList<>(players);
+        for(Player p : players) {
+            if (!p.isInRound())
+                out.remove(p);
         }
-        return max;
+        return out;
     }
 }
