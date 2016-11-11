@@ -39,26 +39,34 @@ public class Player {
         return playerPot;
     }
 
-    public void placeBet(int amount, Table table) throws Exception {
+    /**
+     * fuction evaluates given amount
+     * @param amount amount the player wants to increment playerPot
+     * @param table current Table player is playing on
+     * @return whether or not amount was correct
+     */
+    public boolean placeBet(int amount, Table table) {
         //fold
         if (amount < 0) {
             inRound = false;
-            return;
+            return true;
         }
         //enough chips and raise/call/check
         if (amount <= chips) {
-            if (table.maxBet <= amount) {
+            if (table.maxBet <= amount + playerPot) {
                 playerPot += amount;
                 chips -= amount;
                 table.maxBet = playerPot;
-
             } //Allin
             else if (chips == amount) {
                 playerPot += amount;
                 chips -= amount;
-            } else
-                throw new Exception("bet is lower than maxBet");
-        }
+            }
+            else
+                return false;
+            return true;
+        } else
+            return false;
     }
 
     public Role getCurrentRole() {

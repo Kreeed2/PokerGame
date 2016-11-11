@@ -1,16 +1,15 @@
 package de.TimBrian;
 
 import de.TimBrian.enums.Role;
-import handChecker.HandChecker;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
 public class Table {
-    HandChecker handChecker = new HandChecker();
     List<Player> players = new LinkedList<>();
     Stack cardStack = new Stack();
     Stack openCards = new Stack();
@@ -59,11 +58,11 @@ public class Table {
      * main game tick method; calls assignRole and distributeCards
      */
     public void nextTurn() {
-        maxBet = 0;
+        //maxBet = 0;
         distributeCards();
         if (turnCounter == 0) {
             assignRole();
-            playerBlind();
+            preFlop();
         } else
             playerBet();
         turnCounter++;
@@ -72,32 +71,53 @@ public class Table {
     /**
      * special preflop bet
      */
-    private void playerBlind() {
-        try {
-            players.get((dealerPos + 1) % players.size()).placeBet(blind/2, this);
-            players.get((dealerPos + 2) % players.size()).placeBet(blind, this);
+    private void preFlop() {
+        players.get((dealerPos + 1) % players.size()).placeBet(blind / 2, this);
+        players.get((dealerPos + 2) % players.size()).placeBet(blind, this);
 
-            for(int i = (dealerPos + 3) % players.size(); i < players.size(); i++) {
-                InputStreamReader isr = new InputStreamReader(System.in);
-                BufferedReader br = new BufferedReader(isr);
-                players.get(i).placeBet(Integer.parseInt(br.readLine()), this);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void playerBet() {
-        for(int i = (dealerPos + 1) % players.size(); i < players.size(); i++) {
+        int firstDefault = (dealerPos + 3) % players.size();
+        for (int j = firstDefault, i = 0; i < players.size(); i++, j = (j + 1) % players.size()) {
+            InputStreamReader isr = new InputStreamReader(System.in);
+            BufferedReader br = new BufferedReader(isr);
             try {
-                InputStreamReader isr = new InputStreamReader(System.in);
-                BufferedReader br = new BufferedReader(isr);
-                players.get(i).placeBet(Integer.parseInt(br.readLine()), this);
-            } catch (Exception e) {
+                while (players.get(j).isInRound()) {
+                    if (players.get(j).placeBet(Integer.parseInt(br.readLine()), this))
+                        break;
+                }
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+        if (fixBets())
+            playerBet();
     }
+
+    private void playerBet() {
+        int posSmall = (dealerPos + 1) % players.size();
+        for(int j = posSmall, i = 0; i < players.size(); i++, j = (j+1)%players.size()) {
+                InputStreamReader isr = new InputStreamReader(System.in);
+                BufferedReader br = new BufferedReader(isr);
+            try {
+                while (players.get(j).isInRound()) {
+                    if (players.get(j).placeBet(Integer.parseInt(br.readLine()), this))
+                        break;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (fixBets())
+            playerBet();
+    }
+
+    private boolean fixBets() {
+        for (Player p : players) {
+            if (p.isInRound() && p.getPlayerPot() != maxBet)
+                return true;
+        }
+        return false;
+    }
+
 
     /**
      * used for giving players and table cards according to game situation
@@ -145,14 +165,5 @@ public class Table {
             players.get((dealerPos + 2) % players.size()).setCurrentRole(Role.BIG);
         }
 
-    }
-
-    public List<Player> getActivePlayers() {
-        List<Player> out = new LinkedList<>(players);
-        for(Player p : players) {
-            if (!p.isInRound())
-                out.remove(p);
-        }
-        return out;
     }
 }
