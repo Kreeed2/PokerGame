@@ -66,44 +66,58 @@ public class Table {
         } else
             playerBet();
         turnCounter++;
+
+        System.out.println("-----------------------------------------------------------");
     }
 
     /**
      * special preflop bet
      */
     private void preFlop() {
-        players.get((dealerPos + 1) % players.size()).placeBet(blind / 2, this);
-        players.get((dealerPos + 2) % players.size()).placeBet(blind, this);
+        int firstDefault = dealerPos;
 
-        int firstDefault = (dealerPos + 3) % players.size();
+        if (players.size() > 2) {
+            players.get((dealerPos + 1) % players.size()).placeBet(blind / 2, this);
+            players.get((dealerPos + 2) % players.size()).placeBet(blind, this);
+
+            firstDefault = (dealerPos + 3) % players.size();
+        } //only 2 players
+        else {
+            players.get(dealerPos).placeBet(blind / 2, this);
+            players.get((dealerPos + 1) % players.size()).placeBet(blind, this);
+        }
         for (int j = firstDefault, i = 0; i < players.size(); i++, j = (j + 1) % players.size()) {
-            InputStreamReader isr = new InputStreamReader(System.in);
-            BufferedReader br = new BufferedReader(isr);
-            try {
-                while (players.get(j).isInRound()) {
-                    if (players.get(j).placeBet(Integer.parseInt(br.readLine()), this))
-                        break;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+            while (players.get(j).isInRound()) {
+                if (players.get(j).placeBet(getUserInput(players.get(j)), this))
+                    break;
             }
         }
         if (fixBets())
             playerBet();
     }
 
+    private int getUserInput(Player p) {
+
+        System.out.println(openCards.toString() + "------------\n" + p.toString() + "\nBitte gib deinen Bet ein. (" + maxBet + ")");
+        InputStreamReader isr = new InputStreamReader(System.in);
+        BufferedReader br = new BufferedReader(isr);
+
+        while (true) {
+            try {
+                return Integer.parseInt(br.readLine());
+            } catch (IOException e) {
+                System.out.println("Bitte gib eine Zahl ein.");
+            }
+        }
+    }
+
     private void playerBet() {
         int posSmall = (dealerPos + 1) % players.size();
         for(int j = posSmall, i = 0; i < players.size(); i++, j = (j+1)%players.size()) {
-                InputStreamReader isr = new InputStreamReader(System.in);
-                BufferedReader br = new BufferedReader(isr);
-            try {
-                while (players.get(j).isInRound()) {
-                    if (players.get(j).placeBet(Integer.parseInt(br.readLine()), this))
-                        break;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+
+            while (players.get(j).isInRound()) {
+                if (players.get(j).placeBet(getUserInput(players.get(j)), this))
+                    break;
             }
         }
         if (fixBets())

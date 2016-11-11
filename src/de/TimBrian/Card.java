@@ -2,7 +2,7 @@ package de.TimBrian;
 
 import handChecker.PokerCard;
 
-public class Card implements PokerCard{
+public class Card implements PokerCard, Cloneable{
     private Value value;
     private Color color;
 

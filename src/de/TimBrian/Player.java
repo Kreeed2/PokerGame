@@ -91,7 +91,7 @@ public class Player {
     }
 
     public String toString() {
-        return name + ":\n" + hand.toString() + "\tchips:\t\t" + chips + "\n\tplayerpot:\t" + playerPot;
+        return name + ":\n" + hand.toString() + "\tchips:\t\t" + chips + "\n\tplayerpot:\t" + playerPot + "\n\tRolle:\t" + currentRole.toString();
     }
 
     public boolean isInRound() {

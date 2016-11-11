@@ -8,15 +8,12 @@ public class Main {
         Table table = new Table();
         table.cardStack.fillStack();
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 2; i++) {
             table.addPlayer(new Player(i + 1));
         }
 
         //Rollenverteilung und Handkarten Verteilung
         table.nextTurn();
-        for (Player p : table.players) {
-            System.out.println(p.toString());
-        }
         table.nextTurn();
         table.nextTurn();
         table.nextTurn();
