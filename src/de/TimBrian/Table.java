@@ -8,6 +8,9 @@ import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Table {
     List<Player> players = new LinkedList<>();
@@ -31,8 +34,9 @@ public class Table {
         players.remove(p);
     }
 
+    /*
     public List<Player> decideWinner() {
-        List<Player> comparePlayers = new LinkedList<>(players);
+        List<Player> comparePlayers = players.stream().filter(Player::isInRound).collect(Collectors.toList());
         int pos = 0;
         while (comparePlayers.size() > 1) {
             if (pos == comparePlayers.size() - 1)
@@ -53,6 +57,29 @@ public class Table {
         }
         return comparePlayers;
     }
+    */
+
+    public List<Player> decideWinner() {
+        return players.stream().sorted((p1, p2) -> p1.getHandValue(openCards.getCards()).compareTo(p2.getHandValue(openCards.getCards()))).collect(Collectors.toList());
+    }
+
+    public void distributePot(List<Player> winners) {
+        if (winners.size() == 1) {
+            if (winners.get(0).getChips() == 0){
+                winners.get(0).addChips(winners.get(0).getPlayerPot()*winners.size()-1);
+                for (Player p : winners.subList(1,winners.size()-1)) {
+                    p.subtractPlayerPot(winners.get(0).getPlayerPot());
+                }
+                distributePot(winners.subList(0,winners.size()-1));
+            }
+            else //no Allin
+            {
+                winners.get(0).addChips(players.stream().collect(Collectors.summingInt(Player::getPlayerPot)));
+            }
+        } else {
+
+        }
+    }
 
     /**
      * main game tick method; calls assignRole and distributeCards
@@ -63,8 +90,12 @@ public class Table {
         if (turnCounter == 0) {
             assignRole();
             preFlop();
-        } else
+        } else if (turnCounter == 3 || countActivePlayers() == 1) {
+            distributePot(decideWinner());
+            //newRound function (all pplPot reset, etc)
+        } else {
             playerBet();
+        }
         turnCounter++;
 
         System.out.println("-----------------------------------------------------------");
@@ -112,9 +143,15 @@ public class Table {
     }
 
     private void playerBet() {
-        int posSmall = (dealerPos + 1) % players.size();
-        for(int j = posSmall, i = 0; i < players.size(); i++, j = (j+1)%players.size()) {
-
+        int posSmall = dealerPos;
+        if (players.size() > 2)
+            posSmall = (dealerPos + 1) % players.size();
+        /*
+        j = current playing player
+        i = sum of the players already played
+        countActivePlayers() > 1 = make sure the last player in a round doesn't fold
+         */
+        for(int j = posSmall, i = 0; i < players.size() && countActivePlayers() > 1; i++, j = (j+1)%players.size()) {
             while (players.get(j).isInRound()) {
                 if (players.get(j).placeBet(getUserInput(players.get(j)), this))
                     break;
@@ -126,10 +163,19 @@ public class Table {
 
     private boolean fixBets() {
         for (Player p : players) {
-            if (p.isInRound() && p.getPlayerPot() != maxBet)
+            if (p.isInRound() && (p.getPlayerPot() != maxBet ^ p.getChips() == 0))
                 return true;
         }
         return false;
+    }
+
+    private int countActivePlayers() {
+        int sum = 0;
+        for (Player p : players) {
+            if (p.isInRound())
+                sum++;
+        }
+        return sum;
     }
 
 

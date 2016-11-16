@@ -31,12 +31,16 @@ public class Player {
         return chips;
     }
 
-    public void setChips(int amount) {
-        chips = chips - amount;
+    public void addChips(int amount) {
+        chips += amount;
     }
 
     public int getPlayerPot() {
         return playerPot;
+    }
+
+    public void subtractPlayerPot(int amount) {
+        playerPot -= amount;
     }
 
     /**

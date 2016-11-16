@@ -8,8 +8,8 @@ public class Main {
         Table table = new Table();
         table.cardStack.fillStack();
 
-        for (int i = 0; i < 2; i++) {
-            table.addPlayer(new Player(i + 1));
+        for (int i = 0; i < 4; i++) {
+            table.addPlayer(new Player(i));
         }
 
         //Rollenverteilung und Handkarten Verteilung
@@ -17,8 +17,6 @@ public class Main {
         table.nextTurn();
         table.nextTurn();
         table.nextTurn();
-
-        //List<Player> test = table.decideWinner();
 
         int nmkfl = 0;
     }
