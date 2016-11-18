@@ -13,10 +13,12 @@ public class Main {
         }
 
         //Rollenverteilung und Handkarten Verteilung
+        /*
         table.nextTurn();
         table.nextTurn();
         table.nextTurn();
         table.nextTurn();
+        */
 
         int nmkfl = 0;
     }

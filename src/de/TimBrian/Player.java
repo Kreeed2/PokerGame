@@ -39,8 +39,16 @@ public class Player {
         return playerPot;
     }
 
-    public void subtractPlayerPot(int amount) {
-        playerPot -= amount;
+    public int subtractPlayerPot(int amount) {
+        if (playerPot >= amount) {
+            playerPot -= amount;
+            return amount;
+        }
+        else {
+            int out = playerPot;
+            playerPot = 0;
+            return out;
+        }
     }
 
     /**
@@ -100,5 +108,9 @@ public class Player {
 
     public boolean isInRound() {
         return inRound;
+    }
+
+    public void leaveRound() {
+        inRound = false;
     }
 }

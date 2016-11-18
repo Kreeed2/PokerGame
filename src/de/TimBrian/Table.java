@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -34,8 +35,8 @@ public class Table {
         players.remove(p);
     }
 
-    /*
-    public List<Player> decideWinner() {
+    //TODO lvl of winners implement
+    public List<Player> decideWinner(int lvl) {
         List<Player> comparePlayers = players.stream().filter(Player::isInRound).collect(Collectors.toList());
         int pos = 0;
         while (comparePlayers.size() > 1) {
@@ -57,27 +58,51 @@ public class Table {
         }
         return comparePlayers;
     }
-    */
 
+    /*
     public List<Player> decideWinner() {
+        //return players.stream().collect(Collectors.maxBy((p1, p2) -> p1.getHandValue(openCards.getCards()).compareTo(p2.getHandValue(openCards.getCards()))));
         return players.stream().sorted((p1, p2) -> p1.getHandValue(openCards.getCards()).compareTo(p2.getHandValue(openCards.getCards()))).collect(Collectors.toList());
     }
+    */
 
     public void distributePot(List<Player> winners) {
         if (winners.size() == 1) {
+            //Allin
             if (winners.get(0).getChips() == 0){
-                winners.get(0).addChips(winners.get(0).getPlayerPot()*winners.size()-1);
-                for (Player p : winners.subList(1,winners.size()-1)) {
-                    p.subtractPlayerPot(winners.get(0).getPlayerPot());
+                for (Player p : players) {
+                    winners.get(0).addChips(p.subtractPlayerPot(winners.get(0).getPlayerPot()));
                 }
-                distributePot(winners.subList(0,winners.size()-1));
+                distributePot(decideWinner(2));
             }
             else //no Allin
             {
-                winners.get(0).addChips(players.stream().collect(Collectors.summingInt(Player::getPlayerPot)));
+                for (Player p : players) {
+                    winners.get(0).addChips(p.subtractPlayerPot(winners.get(0).getPlayerPot()));
+                }
             }
         } else {
+            if (winners.get(0).getChips() == 0) {
+                Player minPlayer = null;
+                int posPot = 100000;
+                for (Player p : winners) {
+                    if (p.getPlayerPot() < posPot)
+                        minPlayer = p;
+                }
 
+                for (Player p : players) {
+                    minPlayer.addChips(p.subtractPlayerPot(winners.get(0).getPlayerPot()) / winners.size());
+                }
+                minPlayer.leaveRound();
+                distributePot(decideWinner(1));
+            }
+            else {
+                for (Player w : winners) {
+                    for (Player p : players) {
+                        w.addChips(p.subtractPlayerPot(winners.get(0).getPlayerPot()) / winners.size());
+                    }
+                }
+            }
         }
     }
 
@@ -91,7 +116,7 @@ public class Table {
             assignRole();
             preFlop();
         } else if (turnCounter == 3 || countActivePlayers() == 1) {
-            distributePot(decideWinner());
+            distributePot(decideWinner(1));
             //newRound function (all pplPot reset, etc)
         } else {
             playerBet();
@@ -182,7 +207,7 @@ public class Table {
     /**
      * used for giving players and table cards according to game situation
      */
-    private void distributeCards() {
+    public void distributeCards() {
         switch (turnCounter) {
             case 0:
                 //zwei Karten an alle Spieler
