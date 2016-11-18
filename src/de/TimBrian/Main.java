@@ -1,8 +1,6 @@
 package de.TimBrian;
 
-import java.util.List;
-
-public class Main {
+class Main {
 
     public static void main(String[] args) {
         Table table = new Table();
@@ -12,14 +10,8 @@ public class Main {
             table.addPlayer(new Player(i));
         }
 
-        //Rollenverteilung und Handkarten Verteilung
-        /*
-        table.nextTurn();
-        table.nextTurn();
-        table.nextTurn();
-        table.nextTurn();
-        */
-
-        int nmkfl = 0;
+        while (table.roundCounter < 5) {
+            table.nextTurn();
+        }
     }
 }

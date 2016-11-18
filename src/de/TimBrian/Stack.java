@@ -8,8 +8,7 @@ import java.util.List;
 import java.util.Random;
 
 public class Stack {
-    //TODO Getter to make cards private
-    public List<PokerCard> cards = new LinkedList<>();
+    private List<PokerCard> cards = new LinkedList<>();
 
     /**
      * fills the card stack with a full deck and shuffles them
@@ -26,12 +25,8 @@ public class Stack {
         Collections.shuffle(cards, new Random(seed));
     }
 
-    public PokerCard remove(int index) {
-        return cards.remove(index);
-    }
-
-    public PokerCard get(int index) {
-        return cards.get(index);
+    public PokerCard remove() {
+        return cards.remove(0);
     }
 
     public void add(PokerCard c) {
@@ -42,10 +37,14 @@ public class Stack {
         return cards;
     }
 
+    public void clearCards() {
+        cards.clear();
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (PokerCard c : cards) {
-            sb.append("\t" + c.toString() + "\n");
+            sb.append("\t").append(c.toString()).append("\n");
         }
         return sb.toString();
     }

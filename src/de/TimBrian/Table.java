@@ -1,42 +1,34 @@
 package de.TimBrian;
 
-import de.TimBrian.enums.Role;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public class Table {
-    List<Player> players = new LinkedList<>();
-    Stack cardStack = new Stack();
-    Stack openCards = new Stack();
-    int turnCounter = 0;
-    int round = 0;
-    int dealerPos;
+class Table {
+    final Stack cardStack = new Stack();
+    private final List<Player> players = new LinkedList<>();
+    private final Stack openCards = new Stack();
+    int roundCounter = 0;
     int maxBet = 0;
-    int blind = 100;
+    private int turnCounter = 0;
+    private int dealerPos;
 
     public void addPlayer(Player p) {
         players.add(p);
     }
 
-    //TODO solve role assignment after all but two players are defeated
-    public void removePlayer(Player p) {
+    private void removePlayer(Player p) {
         if (p.getCurrentRole() == Role.DEALER)
             dealerPos--;
 
         players.remove(p);
     }
 
-    //TODO lvl of winners implement
-    public List<Player> decideWinner(int lvl) {
+    private List<Player> decideWinner() {
         List<Player> comparePlayers = players.stream().filter(Player::isInRound).collect(Collectors.toList());
         int pos = 0;
         while (comparePlayers.size() > 1) {
@@ -59,21 +51,15 @@ public class Table {
         return comparePlayers;
     }
 
-    /*
-    public List<Player> decideWinner() {
-        //return players.stream().collect(Collectors.maxBy((p1, p2) -> p1.getHandValue(openCards.getCards()).compareTo(p2.getHandValue(openCards.getCards()))));
-        return players.stream().sorted((p1, p2) -> p1.getHandValue(openCards.getCards()).compareTo(p2.getHandValue(openCards.getCards()))).collect(Collectors.toList());
-    }
-    */
-
-    public void distributePot(List<Player> winners) {
+    private void distributePot(List<Player> winners) {
         if (winners.size() == 1) {
             //Allin
             if (winners.get(0).getChips() == 0){
                 for (Player p : players) {
                     winners.get(0).addChips(p.subtractPlayerPot(winners.get(0).getPlayerPot()));
                 }
-                distributePot(decideWinner(2));
+                winners.get(0).leaveRound();
+                distributePot(decideWinner());
             }
             else //no Allin
             {
@@ -83,18 +69,13 @@ public class Table {
             }
         } else {
             if (winners.get(0).getChips() == 0) {
-                Player minPlayer = null;
-                int posPot = 100000;
-                for (Player p : winners) {
-                    if (p.getPlayerPot() < posPot)
-                        minPlayer = p;
-                }
+                Player minPlayer = winners.stream().min((p1, p2) -> ((Integer) p1.getChips()).compareTo(p2.getChips())).orElseThrow(RuntimeException::new);
 
                 for (Player p : players) {
                     minPlayer.addChips(p.subtractPlayerPot(winners.get(0).getPlayerPot()) / winners.size());
                 }
                 minPlayer.leaveRound();
-                distributePot(decideWinner(1));
+                distributePot(decideWinner());
             }
             else {
                 for (Player w : winners) {
@@ -110,14 +91,14 @@ public class Table {
      * main game tick method; calls assignRole and distributeCards
      */
     public void nextTurn() {
-        //maxBet = 0;
         distributeCards();
         if (turnCounter == 0) {
             assignRole();
             preFlop();
         } else if (turnCounter == 3 || countActivePlayers() == 1) {
-            distributePot(decideWinner(1));
-            //newRound function (all pplPot reset, etc)
+            distributePot(decideWinner());
+            nextRound();
+            return;
         } else {
             playerBet();
         }
@@ -126,12 +107,25 @@ public class Table {
         System.out.println("-----------------------------------------------------------");
     }
 
+    private void nextRound() {
+        openCards.clearCards();
+        cardStack.fillStack();
+
+        players.forEach(player -> player.hand.clearCards());
+        players.stream().filter(player -> player.getChips() == 0).forEach(this::removePlayer);
+
+        maxBet = 0;
+        turnCounter = 0;
+        roundCounter++;
+    }
+
     /**
      * special preflop bet
      */
     private void preFlop() {
         int firstDefault = dealerPos;
 
+        int blind = 100;
         if (players.size() > 2) {
             players.get((dealerPos + 1) % players.size()).placeBet(blind / 2, this);
             players.get((dealerPos + 2) % players.size()).placeBet(blind, this);
@@ -174,7 +168,7 @@ public class Table {
         /*
         j = current playing player
         i = sum of the players already played
-        countActivePlayers() > 1 = make sure the last player in a round doesn't fold
+        countActivePlayers() > 1 = make sure the last player in a roundCounter doesn't fold
          */
         for(int j = posSmall, i = 0; i < players.size() && countActivePlayers() > 1; i++, j = (j+1)%players.size()) {
             while (players.get(j).isInRound()) {
@@ -207,24 +201,24 @@ public class Table {
     /**
      * used for giving players and table cards according to game situation
      */
-    public void distributeCards() {
+    private void distributeCards() {
         switch (turnCounter) {
             case 0:
-                //zwei Karten an alle Spieler
-                for (Player p : players) {
-                    p.hand.add(cardStack.remove(0));
-                    p.hand.add(cardStack.remove(1));
-                }
+                //zwei Karten an alle aktiven Spieler
+                players.stream().filter(Player::isInRound).forEach(player -> {
+                    player.hand.add(cardStack.remove());
+                    player.hand.add(cardStack.remove());
+                });
                 break;
             case 1:
                 //drei offene Karten
                 for (int i=0;i<3;i++)
                 {
-                    openCards.add(cardStack.remove(0));
+                    openCards.add(cardStack.remove());
                 }
                 break;
             default:
-                openCards.add(cardStack.remove(0));
+                openCards.add(cardStack.remove());
                 break;
         }
     }
@@ -233,7 +227,7 @@ public class Table {
      * assigns roles to every player
      */
     private void assignRole() {
-        if (round == 0)
+        if (roundCounter == 0)
             //Zufällige Postion des Dealers in der ersten Runde
             dealerPos = new Random(System.currentTimeMillis()).nextInt(players.size());
         else {

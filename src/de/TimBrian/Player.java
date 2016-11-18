@@ -1,6 +1,5 @@
 package de.TimBrian;
 
-import de.TimBrian.enums.Role;
 import handChecker.HandChecker;
 import handChecker.HandValue;
 import handChecker.PokerCard;
@@ -9,11 +8,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Player {
-    public Stack hand = new Stack();
+class Player {
+    public final Stack hand = new Stack();
+    private final String name;
     private HandValue hv;
     private int chips = 10000;
-    private String name;
     private Role currentRole = Role.DEFAULT;
     private int playerPot = 0;
     private boolean inRound = true;
@@ -52,7 +51,7 @@ public class Player {
     }
 
     /**
-     * fuction evaluates given amount
+     * function evaluates given amount
      * @param amount amount the player wants to increment playerPot
      * @param table current Table player is playing on
      * @return whether or not amount was correct
