@@ -1,9 +1,5 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,8 +7,8 @@ class Handler extends Thread {
 
     private String name;
     private Socket socket;
-    private BufferedReader in;
-    private PrintWriter out;
+    private ObjectInputStream in;
+    private ObjectOutputStream out;
 
     private static final Logger log = Logger.getLogger( Logger.GLOBAL_LOGGER_NAME );
 
@@ -23,49 +19,59 @@ class Handler extends Thread {
     @Override
     public void run() {
         try {
-            in = new BufferedReader(new InputStreamReader(
-                    socket.getInputStream()));
-            out = new PrintWriter(socket.getOutputStream(), true);
+            in = new ObjectInputStream(socket.getInputStream());
+            out = new ObjectOutputStream(socket.getOutputStream());
 
-            log.info("Adding Player");
+            login();
+            while(true) {
 
-            while (true) {
-                out.println("/SUBMITNAME");
-                name = in.readLine();
-                if (name == null) {
-                    return;
-                }
-                synchronized (Server.names) {
-                    if (!Server.names.contains(name)) {
-                        Server.names.add(name);
-                        break;
-                    }
-                }
-                log.log(Level.WARNING, "Player submitted invalid name");
             }
-
-            out.println("/NAMEACCEPTED");
-            Server.writers.add(out);
-
         }
         catch (IOException e) {
             log.log(Level.SEVERE, e.getMessage());
         }
         finally {
+            close();
+        }
+    }
 
-            log.info("Removing Player " + name);
+    public synchronized void sendData(Message message) {
 
-            if (name != null) {
-                Server.names.remove(name);
+    }
+
+    /*
+    private void login() throws IOException {
+        log.info("Adding Player");
+        while (true) {
+            out.println("/SUBMITNAME");
+            name = in.readLine();
+            if (name == null) {
+                return;
             }
-            if (out != null) {
-                Server.writers.remove(out);
+            synchronized (Server.names) {
+                if (!Server.names.contains(name)) {
+                    Server.names.add(name);
+                    break;
+                }
             }
-            try {
-                socket.close();
-            } catch (IOException e) {
-                log.log(Level.SEVERE, e.getMessage());
-            }
+            log.log(Level.WARNING, "Player submitted invalid name");
+        }
+        out.println("/NAMEACCEPTED");
+        Server.writers.add(out);
+    }
+    */
+
+    private void close() {
+        log.info("Removing Player " + name);
+
+        if (name != null)
+            Server.names.remove(name);
+        if (out != null)
+            Server.writers.remove(out);
+        try {
+            socket.close();
+        } catch (IOException e) {
+            log.log(Level.SEVERE, e.getMessage());
         }
     }
 }
