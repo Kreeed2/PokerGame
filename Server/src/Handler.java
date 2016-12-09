@@ -1,71 +1,66 @@
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class Handler extends Thread {
+public class Handler extends Thread {
 
-    private String name;
+    private static final Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     private Socket socket;
+    private boolean playerConstructed = false;
     private ObjectInputStream in;
     private ObjectOutputStream out;
 
-    private static final Logger log = Logger.getLogger( Logger.GLOBAL_LOGGER_NAME );
-
     public Handler(Socket accept) {
+        log.info("Handling connection");
         socket = accept;
     }
 
     @Override
     public void run() {
         try {
-            in = new ObjectInputStream(socket.getInputStream());
             out = new ObjectOutputStream(socket.getOutputStream());
+            in = new ObjectInputStream(socket.getInputStream());
 
             login();
             while(true) {
-
+                in.readObject();
             }
-        }
-        catch (IOException e) {
+        } catch (ClassNotFoundException | IOException e) {
             log.log(Level.SEVERE, e.getMessage());
-        }
-        finally {
+        } finally {
             close();
         }
     }
 
-    public synchronized void sendData(Message message) {
-
+    public synchronized void sendData(String header, String payload) throws IOException {
+        out.writeObject(new Message(header, payload));
+        out.flush();
     }
 
-    /*
-    private void login() throws IOException {
+
+    private void login() throws IOException, ClassNotFoundException {
         log.info("Adding Player");
         while (true) {
-            out.println("/SUBMITNAME");
-            name = in.readLine();
-            if (name == null) {
-                return;
-            }
-            synchronized (Server.names) {
-                if (!Server.names.contains(name)) {
-                    Server.names.add(name);
-                    break;
-                }
+            sendData("ADDPLAYER", null);
+            Message data = (Message) in.readObject();
+            if (data != null && data.getHeader().equals("NAME")) {
+                Server.table.addPlayer(new Player(this, data.getPayload().toString()));
+                playerConstructed = true;
+                break;
             }
             log.log(Level.WARNING, "Player submitted invalid name");
         }
-        out.println("/NAMEACCEPTED");
+        sendData("NAMEACCEPTED", null);
         Server.writers.add(out);
     }
-    */
+
 
     private void close() {
-        log.info("Removing Player " + name);
-
-        if (name != null)
-            Server.names.remove(name);
+        if (playerConstructed)
+            Server.table.removePlayer();
         if (out != null)
             Server.writers.remove(out);
         try {

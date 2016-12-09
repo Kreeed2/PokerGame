@@ -1,43 +1,50 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 
 public class Client {
 
-    BufferedReader in;
-    PrintWriter out;
+    ObjectInputStream in;
+    ObjectOutputStream out;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
         Client client = new Client();
         client.run(args[0], Integer.parseInt(args[1]));
     }
 
-    private void run(String serverAdress, int port) throws IOException {
+    private void run(String serverAddress, int port) throws IOException, ClassNotFoundException {
 
         // Make connection and initialize streams
-        String serverAddress = serverAdress;
         Socket socket = new Socket(serverAddress, port);
-        in = new BufferedReader(new InputStreamReader(
-                socket.getInputStream()));
-        out = new PrintWriter(socket.getOutputStream(), true);
+        out = new ObjectOutputStream(socket.getOutputStream());
+        in = new ObjectInputStream(socket.getInputStream());
 
+        login();
         // Process all messages from server, according to the protocol.
         while (true) {
-            String line = in.readLine();
-            if (line.startsWith("/SUBMITNAME")) {
-                out.println(getName());
-            } else if (line.startsWith("NAMEACCEPTED")) {
-                System.out.print("Name akzeptiert");
-            }
+            in.readObject();
         }
+    }
+
+    private void login() throws IOException, ClassNotFoundException {
+        while (true) {
+            Message data = (Message) in.readObject();
+            if (data != null && data.getHeader().equals("ADDPLAYER")) {
+                sendData("NAME", getName());
+            } else if (data != null && data.getHeader().equals("NAMEACCEPTED"))
+                break;
+        }
+    }
+
+    private synchronized void sendData(String header, String payload) throws IOException {
+        out.writeObject(new Message(header, payload));
+        out.flush();
     }
 
     private String getName() {
         InputStreamReader isr = new InputStreamReader(System.in);
         BufferedReader br = new BufferedReader(isr);
 
+        System.out.print("Name:");
         while (true) {
             try {
                 return br.readLine();

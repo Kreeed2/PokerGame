@@ -1,16 +1,16 @@
-package de.TimBrian;
-
-import de.TimBrian.enums.Role;
+import enums.Role;
 import handChecker.HandChecker;
 import handChecker.HandValue;
 import handChecker.PokerCard;
 
 import java.util.List;
+import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class Player {
+public class Player {
     public final Stack hand = new Stack();
+    public final Handler handler;
     private final String name;
     private HandValue hv;
     private int chips = 10000;
@@ -18,13 +18,15 @@ class Player {
     private int playerPot = 0;
     private boolean inRound = true;
 
-    public Player(int chips, String name){
+    public Player(Handler handler, int chips, String name) {
+        this.handler = handler;
         this.chips = chips;
         this.name = name;
     }
 
-    public Player(int number) {
-        name = "Felix " + number;
+    public Player(Handler handler, String name) {
+        this.handler = handler;
+        this.name = name;
     }
 
     public int getChips() {
@@ -43,8 +45,7 @@ class Player {
         if (playerPot >= amount) {
             playerPot -= amount;
             return amount;
-        }
-        else {
+        } else {
             int out = playerPot;
             playerPot = 0;
             return out;
@@ -53,8 +54,9 @@ class Player {
 
     /**
      * function evaluates given amount
+     *
      * @param amount amount the player wants to increment playerPot
-     * @param table current Table player is playing on
+     * @param table  current Table player is playing on
      * @return whether or not amount was correct
      */
     public boolean placeBet(int amount, Table table) {
@@ -73,8 +75,7 @@ class Player {
             else if (chips == amount) {
                 playerPot += amount;
                 chips -= amount;
-            }
-            else
+            } else
                 return false;
             return true;
         } else

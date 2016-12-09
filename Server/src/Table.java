@@ -1,6 +1,4 @@
-package de.TimBrian;
-
-import de.TimBrian.enums.Role;
+import enums.Role;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,7 +8,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-class Table {
+public class Table {
     final Stack cardStack = new Stack();
     private final List<Player> players = new LinkedList<>();
     private final Stack openCards = new Stack();
@@ -23,11 +21,20 @@ class Table {
         players.add(p);
     }
 
-    private void removePlayer(Player p) {
+    public void removePlayer(Player p) {
         if (p.getCurrentRole() == Role.DEALER)
             dealerPos--;
 
         players.remove(p);
+    }
+
+    //TODO Make pretty
+    public void removePlayer(Handler h) {
+        List<Player> ps = players.stream().filter(player -> player.handler.equals(h)).collect(Collectors.toList());
+        if (ps.get(0).getCurrentRole() == Role.DEALER)
+            dealerPos--;
+
+        players.remove(ps.get(0));
     }
 
     private List<Player> decideWinner() {
@@ -56,14 +63,13 @@ class Table {
     private void distributePot(List<Player> winners) {
         if (winners.size() == 1) {
             //Allin
-            if (winners.get(0).getChips() == 0){
+            if (winners.get(0).getChips() == 0) {
                 for (Player p : players) {
                     winners.get(0).addChips(p.subtractPlayerPot(winners.get(0).getPlayerPot()));
                 }
                 winners.get(0).leaveRound();
                 distributePot(decideWinner());
-            }
-            else //no Allin
+            } else //no Allin
             {
                 for (Player p : players) {
                     winners.get(0).addChips(p.subtractPlayerPot(winners.get(0).getPlayerPot()));
@@ -78,8 +84,7 @@ class Table {
                 }
                 minPlayer.leaveRound();
                 distributePot(decideWinner());
-            }
-            else {
+            } else {
                 for (Player w : winners) {
                     for (Player p : players) {
                         w.addChips(p.subtractPlayerPot(winners.get(0).getPlayerPot()) / winners.size());
@@ -172,7 +177,7 @@ class Table {
         i = sum of the players already played
         countActivePlayers() > 1 = make sure the last player in a roundCounter doesn't fold
          */
-        for(int j = posSmall, i = 0; i < players.size() && countActivePlayers() > 1; i++, j = (j+1)%players.size()) {
+        for (int j = posSmall, i = 0; i < players.size() && countActivePlayers() > 1; i++, j = (j + 1) % players.size()) {
             while (players.get(j).isInRound()) {
                 if (players.get(j).placeBet(getUserInput(players.get(j)), this))
                     break;
@@ -214,8 +219,7 @@ class Table {
                 break;
             case 1:
                 //drei offene Karten
-                for (int i=0;i<3;i++)
-                {
+                for (int i = 0; i < 3; i++) {
                     openCards.add(cardStack.remove());
                 }
                 break;
