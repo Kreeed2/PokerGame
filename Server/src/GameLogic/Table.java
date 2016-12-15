@@ -1,4 +1,7 @@
-import enums.Role;
+package GameLogic;
+
+
+import GameLogic.enums.Role;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,11 +12,11 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 public class Table {
-    final Stack cardStack = new Stack();
+    private final Stack cardStack = new Stack();
     private final List<Player> players = new LinkedList<>();
     private final Stack openCards = new Stack();
-    int roundCounter = 0;
-    int maxBet = 0;
+    protected int maxBet = 0;
+    private int roundCounter = 0;
     private int turnCounter = 0;
     private int dealerPos;
 
@@ -21,20 +24,11 @@ public class Table {
         players.add(p);
     }
 
-    public void removePlayer(Player p) {
+    private void removePlayer(Player p) {
         if (p.getCurrentRole() == Role.DEALER)
             dealerPos--;
 
         players.remove(p);
-    }
-
-    //TODO Make pretty
-    public void removePlayer(Handler h) {
-        List<Player> ps = players.stream().filter(player -> player.handler.equals(h)).collect(Collectors.toList());
-        if (ps.get(0).getCurrentRole() == Role.DEALER)
-            dealerPos--;
-
-        players.remove(ps.get(0));
     }
 
     private List<Player> decideWinner() {
@@ -118,7 +112,7 @@ public class Table {
         openCards.clearCards();
         cardStack.fillStack();
 
-        players.forEach(player -> player.hand.clearCards());
+        players.forEach(Player::clearHand);
         players.stream().filter(player -> player.getChips() == 0).forEach(this::removePlayer);
 
         maxBet = 0;
@@ -213,8 +207,8 @@ public class Table {
             case 0:
                 //zwei Karten an alle aktiven Spieler
                 players.stream().filter(Player::isInRound).forEach(player -> {
-                    player.hand.add(cardStack.remove());
-                    player.hand.add(cardStack.remove());
+                    player.addCardToHand(cardStack.remove());
+                    player.addCardToHand(cardStack.remove());
                 });
                 break;
             case 1:

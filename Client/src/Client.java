@@ -1,3 +1,5 @@
+import Network.Message;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -28,9 +30,9 @@ public class Client {
     private void login() throws IOException, ClassNotFoundException {
         while (true) {
             Message data = (Message) in.readObject();
-            if (data != null && data.getHeader().equals("ADDPLAYER")) {
+            if (data != null && data.getHeader().equals("NAMEADD")) {
                 sendData("NAME", getName());
-            } else if (data != null && data.getHeader().equals("NAMEACCEPTED"))
+            } else if (data != null && data.getHeader().equals("NAMEACCEPT") && (boolean) data.getPayload())
                 break;
         }
     }

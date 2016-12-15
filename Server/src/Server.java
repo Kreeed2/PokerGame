@@ -1,14 +1,14 @@
+import GameLogic.Player;
+import GameLogic.Table;
+
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
-import java.util.HashSet;
 import java.util.logging.Logger;
 
 public class Server {
-    private static final Logger log = Logger.getLogger( Logger.GLOBAL_LOGGER_NAME );
-    public static int PORT = 25565;
-    public static Table table = new Table();
-    static HashSet<ObjectOutputStream> writers = new HashSet<>();
+    private static final Logger log = Logger.getGlobal();
+    static int PORT = 25565;
+    Table table = new Table();
 
     public static void main(String[] args) throws IOException {
         log.info("Starte Server");
@@ -16,7 +16,7 @@ public class Server {
 
         try {
             while (true) {
-                new Handler(listener.accept()).start();
+                new Player(listener.accept());
             }
         } finally {
             listener.close();

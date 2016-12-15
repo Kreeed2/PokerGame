@@ -1,31 +1,45 @@
-import enums.Role;
+package GameLogic;
+
+import GameLogic.enums.Role;
+import Network.Handler;
 import handChecker.HandChecker;
 import handChecker.HandValue;
 import handChecker.PokerCard;
 
+import java.net.Socket;
 import java.util.List;
-import java.util.Stack;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Player {
-    public final Stack hand = new Stack();
-    public final Handler handler;
-    private final String name;
-    private HandValue hv;
-    private int chips = 10000;
+    private final Stack hand = new Stack();
+    Logger log = Logger.getGlobal();
+    Handler handler;
     private Role currentRole = Role.DEFAULT;
-    private int playerPot = 0;
+    private HandValue hv;
     private boolean inRound = true;
+    private int playerPot = 0;
 
-    public Player(Handler handler, int chips, String name) {
-        this.handler = handler;
-        this.chips = chips;
-        this.name = name;
+    private String name = "ERROR";
+    private int chips = 10000;
+
+    public Player(Socket socket) {
+        handler = new Handler(socket, this);
+        handler.start();
+        handler.sendData("NAMEADD", null);
     }
 
-    public Player(Handler handler, String name) {
-        this.handler = handler;
+    //TEST
+    @Override
+    protected void finalize() throws Throwable {
+        log.info("Spieler " + name + " wird entfernt");
+        handler.sendData("REMOVE", null);
+        handler.close();
+        super.finalize();
+    }
+
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -52,11 +66,19 @@ public class Player {
         }
     }
 
+    public void clearHand() {
+        hand.clearCards();
+    }
+
+    public void addCardToHand(PokerCard card) {
+        hand.add(card);
+        handler.sendData("CARDADD", card);
+    }
+
     /**
      * function evaluates given amount
-     *
      * @param amount amount the player wants to increment playerPot
-     * @param table  current Table player is playing on
+     * @param table current Table player is playing on
      * @return whether or not amount was correct
      */
     public boolean placeBet(int amount, Table table) {
@@ -101,10 +123,6 @@ public class Player {
         }
         return hv;
 
-    }
-
-    public String toString() {
-        return name + ":\n" + hand.toString() + "\tchips:\t\t" + chips + "\n\tplayerpot:\t" + playerPot + "\n\tRolle:\t" + currentRole.toString();
     }
 
     public boolean isInRound() {

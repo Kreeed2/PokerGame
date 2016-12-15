@@ -1,0 +1,15 @@
+Server eingehend
+
+header | payload (type)
+----------------------------
+NAME | vom Client gewählter Name (String)
+
+Server ausgehend
+
+header | payload (type)
+----------------------------
+NAMEADD | null
+NAMEACCEPT | true/false (boolean)
+UNKNOWN | null
+CARDADD | object of Card (Card)
+REMOVE | when the player is removed form the game (null)
