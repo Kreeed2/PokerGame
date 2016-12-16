@@ -132,6 +132,10 @@ public class Player extends Observable {
 
     }
 
+    public Stack getHand() {
+        return hand;
+    }
+
     public boolean isInRound() {
         return inRound;
     }

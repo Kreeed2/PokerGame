@@ -7,10 +7,7 @@ import Network.Message;
 import Network.VarObserver;
 
 import java.io.*;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Table {
@@ -134,6 +131,9 @@ public class Table {
         turnCounter++;
 
         System.out.println("-----------------------------------------------------------");
+
+        //SERVER
+        sendAktivePlayer();
     }
 
     private void nextRound() {
@@ -237,6 +237,12 @@ public class Table {
                 players.stream().filter(Player::isInRound).forEach(player -> {
                     player.addCardToHand(cardStack.remove());
                     player.addCardToHand(cardStack.remove());
+
+                    //SERVER
+                    for (Player p : players) {
+                        sendToPlayer(p, "HANDCARDS", p.getHand());
+                    }
+                    //
                 });
                 break;
             case 1:
@@ -244,9 +250,20 @@ public class Table {
                 for (int i = 0; i < 3; i++) {
                     openCards.add(cardStack.remove());
                 }
+
+                //SERVER
+                for (Player p : players) {
+                    sendToPlayer(p, "OPENCARDS", openCards);
+                }
+                //
                 break;
             default:
                 openCards.add(cardStack.remove());
+                //SERVER
+                for (Player p : players) {
+                    sendToPlayer(p, "OPENCARDS", openCards);
+                }
+                //
                 break;
         }
     }
@@ -272,5 +289,30 @@ public class Table {
             players.get((dealerPos + 2) % players.size()).setCurrentRole(Role.BIG);
         }
 
+        //SERVER STUFF
+        HashMap<String, Integer> roles = new HashMap<>();
+
+        for (Player p : players) {
+            roles.put(p.getName(), p.getCurrentRole().ordinal());
+        }
+        for (Player p : players) {
+            sendToPlayer(p, "ROLEMAP", roles);
+        }
+    }
+
+    //SERVER
+
+    public void sendToPlayer(Player p, String header, Object payload){
+        p.handler.sendData(header, payload);
+    }
+
+    public void sendAktivePlayer(){
+        HashMap<String, Boolean>actives = new HashMap<>();
+        for (Player p : players) {
+            actives.put(p.getName(), p.isInRound());
+        }
+        for (Player p : players) {
+            sendToPlayer(p, "AKTIVEPLAYERS", p.getHand());
+        }
     }
 }

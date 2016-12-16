@@ -24,6 +24,7 @@ public class Server {
             while (table.getRoundCounter() < 5) {
                 table.nextTurn();
             }
+
         } finally {
             listener.close();
         }

@@ -14,3 +14,7 @@ UNKNOWN | null
 CARDADD | object of Card (Card)
 REMOVE | when the player is removed form the game (null)
 MESSAGE | generelle Nachrichten (String)
+ROLEMAP | HashMap with name and role as int (HashMap<String, Integer>)
+HANDCARDS | Stack with Handcards
+OPENCARDS | Stack with open Cards
+AKTIVEPLAYERS |
