@@ -8,11 +8,12 @@ import handChecker.PokerCard;
 
 import java.net.Socket;
 import java.util.List;
+import java.util.Observable;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Player {
+public class Player extends Observable {
     private final Stack hand = new Stack();
     Logger log = Logger.getGlobal();
     Handler handler;
@@ -23,6 +24,10 @@ public class Player {
 
     private String name = "ERROR";
     private int chips = 10000;
+
+    public String getName() {
+        return name;
+    }
 
     public Player(Socket socket) {
         handler = new Handler(socket, this);
@@ -41,6 +46,8 @@ public class Player {
 
     public void setName(String name) {
         this.name = name;
+        setChanged();
+        notifyObservers(name);
     }
 
     public int getChips() {
@@ -132,4 +139,5 @@ public class Player {
     public void leaveRound() {
         inRound = false;
     }
+
 }

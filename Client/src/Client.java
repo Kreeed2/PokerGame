@@ -23,7 +23,15 @@ public class Client {
         login();
         // Process all messages from server, according to the protocol.
         while (true) {
-            in.readObject();
+            Message message = (Message) in.readObject();
+            switch (message.getHeader()) {
+                case "MESSAGE":
+                    System.out.println(message.getPayload());
+                    break;
+                default:
+                    System.out.println("Fehlerhafte Nachricht erhalten");
+                    break;
+            }
         }
     }
 

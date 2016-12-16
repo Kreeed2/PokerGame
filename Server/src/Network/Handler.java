@@ -12,8 +12,8 @@ import java.util.logging.Logger;
 public class Handler extends Thread {
 
     private static final Logger log = Logger.getGlobal();
-    private static ObjectOutputStream out;
-    private static ObjectInputStream in;
+    private ObjectOutputStream out;
+    private ObjectInputStream in;
     private Socket socket;
     private Player player;
 
@@ -44,8 +44,8 @@ public class Handler extends Thread {
         switch (message.getHeader()) {
             case "NAME":
                 if (message.getPayload() instanceof String && message.getPayload() != "") {
-                    player.setName((String) message.getPayload());
                     sendData("NAMEACCEPT", true);
+                    player.setName((String) message.getPayload());
                     log.info("Name geändert");
                 } else {
                     sendData("NAMEACCEPT", false);
@@ -57,9 +57,10 @@ public class Handler extends Thread {
         }
     }
 
-    public synchronized boolean sendData(String header, Object payload) {
+    public boolean sendData(String header, Object payload) {
         try {
             out.writeObject(new Message(header, payload));
+            out.flush();
             return true;
         } catch (IOException e) {
             log.log(Level.SEVERE, e.getMessage());

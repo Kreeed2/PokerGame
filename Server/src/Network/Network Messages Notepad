@@ -13,3 +13,4 @@ NAMEACCEPT | true/false (boolean)
 UNKNOWN | null
 CARDADD | object of Card (Card)
 REMOVE | when the player is removed form the game (null)
+MESSAGE | generelle Nachrichten (String)
