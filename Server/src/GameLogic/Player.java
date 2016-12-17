@@ -54,6 +54,10 @@ public class Player extends Observable {
         return chips;
     }
 
+    public Stack getHand() {
+        return hand;
+    }
+
     public void addChips(int amount) {
         chips += amount;
     }
