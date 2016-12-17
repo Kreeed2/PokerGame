@@ -14,3 +14,13 @@ UNKNOWN | null
 CARDADD | object of Card (Card)
 REMOVE | when the player is removed form the game (null)
 MESSAGE | generelle Nachrichten (String)
+PLAYERCHIPS | Map(String Playername, int PlayerChips); to all player
+POT | int pot um den in dieser Runde gespielt wird; to all player
+ROLE | Map(String Playername, int Playerrole); to all player
+HANDCARDS | Stack handcards; to one player
+OPENCARDS | Stack opencards; to all player
+BET | Map(String Playername, int Bet); to all Player
+BLIND | int blind; to all Player
+AKTIVEPLAYER | List(String Playername); to all Player
+RIVERHAND | Map(String Playername, Stack PlayerHandCards) to all Player
+
