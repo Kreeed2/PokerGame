@@ -2,10 +2,7 @@ package GameLogic;
 
 
 import GameLogic.enums.Role;
-import Network.Handler;
-import Network.Message;
 import Network.VarObserver;
-import com.sun.javafx.collections.MappingChange;
 
 import java.io.*;
 import java.util.*;
@@ -26,7 +23,7 @@ public class Table {
 
     public void broadcastToPlayers(String message) {
        for (Player out : players) {
-           out.handler.sendData("MESSAGE", message);
+           out.handlerServer.sendData("MESSAGE", message);
        }
     }
 
@@ -81,6 +78,7 @@ public class Table {
         return comparePlayers;
     }
 
+    //TODO send message to clients who won
     private void distributePot(List<Player> winners) {
         if (winners.size() == 1) {
             //Allin
@@ -137,9 +135,6 @@ public class Table {
             roleMessage();
             //
         } else if (turnCounter == 3 || countActivePlayers() == 1) {
-            //SERVER
-            openHandCardsMessage();
-            //
             distributePot(decideWinner());
             nextRound();
             return;
@@ -218,11 +213,6 @@ public class Table {
     }
 
     private void playerBet() {
-
-        //SERVER
-        aktivePlayerMessage();
-        //
-
         int posSmall = dealerPos;
         if (players.size() > 2)
             posSmall = (dealerPos + 1) % players.size();
@@ -316,7 +306,7 @@ public class Table {
     //SERVER
 
     public void sendToHandler(Player p, String header, Object payload){
-        p.handler.sendData(header, payload);
+        p.handlerServer.sendData(header, payload);
     }
 
     public void turnMessage() {
@@ -329,7 +319,7 @@ public class Table {
         }
 
         int pot = 0;
-        for (Player p: players) {
+        for (Player p : players) {
             pot += p.getPlayerPot();
         }
         for (Player p : players) {
@@ -340,25 +330,29 @@ public class Table {
     public void roleMessage() {
         Map<String, Integer> roles = new HashMap<>();
         for(Player p: players){
-            roles.put(p.getName(), p.getCurrentRole().ordinal());
+            if (p.isInRound())
+                roles.put(p.getName(), p.getCurrentRole().ordinal());
         }
 
         for (Player p : players) {
-            sendToHandler(p, "ROLE", roles);
+            if (p.isInRound())
+                sendToHandler(p, "ROLE", roles);
         }
     }
 
     public void handCardMessage(){
         if (turnCounter == 0) {
             for (Player p : players) {
-                sendToHandler(p, "HANDCARDS", p.getHand());
+                if (p.isInRound())
+                    sendToHandler(p, "HANDCARDS", p.getHand());
             }
         }
     }
 
     public void openCardMessage() {
         for (Player p : players) {
-            sendToHandler(p, "OPENCARDS", openCards);
+            if (p.isInRound())
+                sendToHandler(p, "OPENCARDS", openCards);
         }
     }
 
@@ -366,37 +360,15 @@ public class Table {
         Map<String, Integer> playerBet = new HashMap<>();
         playerBet.put(name, bet);
         for (Player p: players) {
-            sendToHandler(p, "BET", playerBet);
+            if (p.isInRound())
+                sendToHandler(p, "BET", playerBet);
         }
     }
 
     public void blindMessage() {
         for (Player p: players) {
-            sendToHandler(p, "BLINDS", blind);
-        }
-    }
-
-    public void aktivePlayerMessage() {
-        List<Player> aktivePlayer = new LinkedList<>();
-        for (Player p: players) {
             if (p.isInRound())
-                aktivePlayer.add(p);
-        }
-        for (Player p: players) {
-            sendToHandler(p, "AKTIVEPLAYER", aktivePlayer);
-        }
-    }
-
-    public void openHandCardsMessage() {
-        if (countActivePlayers() > 2) {
-            Map<String, Stack> handCards = new HashMap<>();
-            for (Player p: players) {
-                if (p.isInRound())
-                    handCards.put(p.getName(), p.getHand());
-            }
-            for (Player p: players) {
-                sendToHandler(p, "RIVERHAND", handCards);
-            }
+                sendToHandler(p, "BLINDS", blind);
         }
     }
 }

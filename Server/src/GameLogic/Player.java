@@ -1,7 +1,7 @@
 package GameLogic;
 
 import GameLogic.enums.Role;
-import Network.Handler;
+import Network.HandlerServer;
 import handChecker.HandChecker;
 import handChecker.HandValue;
 import handChecker.PokerCard;
@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 public class Player extends Observable {
     private final Stack hand = new Stack();
     Logger log = Logger.getGlobal();
-    Handler handler;
+    HandlerServer handlerServer;
     private Role currentRole = Role.DEFAULT;
     private HandValue hv;
     private boolean inRound = true;
@@ -30,17 +30,17 @@ public class Player extends Observable {
     }
 
     public Player(Socket socket) {
-        handler = new Handler(socket, this);
-        handler.start();
-        handler.sendData("NAMEADD", null);
+        handlerServer = new HandlerServer(socket, this);
+        handlerServer.start();
+        handlerServer.sendData("NAMEADD", null);
     }
 
     //TEST
     @Override
     protected void finalize() throws Throwable {
         log.info("Spieler " + name + " wird entfernt");
-        handler.sendData("REMOVE", null);
-        handler.close();
+        handlerServer.sendData("REMOVE", null);
+        handlerServer.close();
         super.finalize();
     }
 
@@ -83,7 +83,6 @@ public class Player extends Observable {
 
     public void addCardToHand(PokerCard card) {
         hand.add(card);
-        handler.sendData("CARDADD", card);
     }
 
     /**

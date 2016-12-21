@@ -9,7 +9,7 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Handler extends Thread {
+public class HandlerServer extends Thread {
 
     private static final Logger log = Logger.getGlobal();
     private ObjectOutputStream out;
@@ -17,7 +17,7 @@ public class Handler extends Thread {
     private Socket socket;
     private Player player;
 
-    public Handler(Socket socket, Player player) {
+    public HandlerServer(Socket socket, Player player) {
         this.socket = socket;
         this.player = player;
 
@@ -66,10 +66,6 @@ public class Handler extends Thread {
             log.log(Level.SEVERE, e.getMessage());
             return false;
         }
-    }
-
-    public ObjectOutputStream getOutputStream() {
-        return out;
     }
 
     public void close() {

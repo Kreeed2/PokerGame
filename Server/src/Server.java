@@ -17,7 +17,7 @@ public class Server {
         try {
             table.getCardStack().fillStack();
 
-            while(table.playerAmount() < 4) {
+            while(table.playerAmount() < 2) {
                 table.addPlayer(new Player(listener.accept()));
             }
 
