@@ -2,6 +2,7 @@ package GUI;
 
 import javax.swing.*;
 import java.awt.event.*;
+import java.util.Random;
 
 public class DialogLogin extends JDialog {
     private JPanel contentPane;
@@ -20,6 +21,9 @@ public class DialogLogin extends JDialog {
     }
 
     public void showDialog() {
+        Random rnd = new Random();
+        txt_name.setText(String.valueOf(rnd.nextInt()));
+        txt_pass.setText(String.valueOf(rnd.nextInt()));
         setVisible(true);
     }
 

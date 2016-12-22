@@ -3,6 +3,7 @@ Server eingehend
 header | payload (type)
 ----------------------------
 NAME | vom Client gewählter Name (String)
+BETGIVEN | gesetzter Bet (int)
 
 Server ausgehend
 
@@ -19,4 +20,5 @@ ROLE | Map(String Playername, int Playerrole); to all player
 HANDCARDS | Stack handcards; to one player
 OPENCARDS | Stack opencards; to all player
 BET | Map(String Playername, int Bet); to all Player
-BLIND | int blind; to all Player
+BLINDS | int blind; to all Player
+BETSET | auffordeung bet zu geben (String)

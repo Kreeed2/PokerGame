@@ -2,7 +2,7 @@ package Network;
 
 import GUI.FormMain;
 import GameLogic.Stack;
-import enums.Role;
+import GameLogic.enums.Role;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -21,6 +21,7 @@ public class HandlerClient extends Thread {
 
     FormMain main;
     Stack cards;
+    Role role;
 
     public HandlerClient(FormMain main, String serverAddress, int port) throws IOException {
         this.main = main;
@@ -69,17 +70,16 @@ public class HandlerClient extends Thread {
                 break;
             case "ROLE":
                 Map<String, Integer> playerRoles = (Map<String, Integer>) message.getPayload();
+                role = Role.values()[playerRoles.get(main.dial.txt_name.getText())];
                 playerRoles.forEach((s, integer) -> main.textArea.append("Der Spieler " + s + " ist " + Role.values()[integer] + ".\n"));
                 break;
             case "HANDCARDS":
                 cards = (Stack) message.getPayload();
                 main.textAreaCards.setText(cards.toString());
-                main.textArea.append("Karten hinzugefügt");
                 break;
             case "OPENCARDS":
                 cards.addStack((Stack) message.getPayload());
                 main.textAreaCards.setText(cards.toString());
-                main.textArea.append("Karten hinzugefügt");
                 break;
             case "BET":
                 Map<String, Integer> playerBets = (Map<String, Integer>) message.getPayload();
@@ -88,8 +88,19 @@ public class HandlerClient extends Thread {
             case "MESSAGE":
                 main.textArea.append((String) message.getPayload() + "\n");
                 break;
+            case "BLINDS":
+                if (role == Role.BIG)
+                    main.textArea.append("Du hast den Blind (" + message.getPayload() + ") gesetzt\n");
+                else if (role == Role.SMALL || role == Role.DEALERSPECIAL)
+                    main.textArea.append("Du hast den SBlind (" + ((Integer) message.getPayload())/2 + ") gesetzt\n");
+                else
+                    main.textArea.append("Der Blind (" + message.getPayload() + ") wurde gesetzt\n");
+                break;
+            case "BETSET":
+                main.textArea.append((String) message.getPayload());
+                break;
             default:
-                main.textArea.setText("Fehlerhafte Message: " + message.getHeader());
+                main.textArea.append("Fehlerhafte Message: " + message.getHeader());
                 //sendData("UNKNOWN", null);
                 break;
         }

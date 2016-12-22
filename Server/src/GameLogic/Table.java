@@ -27,6 +27,10 @@ public class Table {
        }
     }
 
+    public boolean allPlayersFinished() {
+        return players.stream().anyMatch(player -> player.getName().equals("ERROR"));
+    }
+
     public int playerAmount() {
         return players.size();
     }
@@ -40,7 +44,12 @@ public class Table {
         return roundCounter;
     }
 
+    public Stack getOpenCards() {
+        return openCards;
+    }
+
     public void addPlayer(Player p) {
+
         players.add(p);
 
         VarObserver obs = new VarObserver(this);
@@ -130,10 +139,10 @@ public class Table {
         //
         if (turnCounter == 0) {
             assignRole();
-            preFlop();
             //SERVER
             roleMessage();
             //
+            preFlop();
         } else if (turnCounter == 3 || countActivePlayers() == 1) {
             distributePot(decideWinner());
             nextRound();
@@ -199,15 +208,19 @@ public class Table {
 
     private int getUserInput(Player p) {
 
-        System.out.println(openCards.toString() + "------------\n" + p.toString() + "\nBitte gib deinen Bet ein. (" + maxBet + ")");
-        InputStreamReader isr = new InputStreamReader(System.in);
-        BufferedReader br = new BufferedReader(isr);
-
+        p.handlerServer.sendData("BETSET" ,openCards.toString() + "Bitte gib deinen Bet ein. (" + maxBet + ")\n");
         while (true) {
-            try {
-                return Integer.parseInt(br.readLine());
-            } catch (IOException e) {
-                System.out.println("Bitte gib eine Zahl ein.");
+            if (p.handlerServer.betGiven != null) {
+                int out = Integer.parseInt((String) p.handlerServer.betGiven);
+                p.handlerServer.betGiven = null;
+                return out;
+            }
+            else {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -352,7 +365,7 @@ public class Table {
     public void openCardMessage() {
         for (Player p : players) {
             if (p.isInRound())
-                sendToHandler(p, "OPENCARDS", openCards);
+                sendToHandler(p, "OPENCARDS", getOpenCards());
         }
     }
 

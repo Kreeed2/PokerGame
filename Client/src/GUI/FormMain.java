@@ -14,6 +14,7 @@ public class FormMain extends JFrame{
     public JTextArea textAreaCards;
 
     public DialogLogin dial = new DialogLogin();
+    private HandlerClient handlerClient;
 
     public FormMain() {
         super();
@@ -21,6 +22,7 @@ public class FormMain extends JFrame{
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
+
         txt_input.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -34,16 +36,18 @@ public class FormMain extends JFrame{
 
     protected void connectToServer() throws IOException {
         dial.showDialog();
-        HandlerClient handlerClient = new HandlerClient(this, dial.txt_ip.getText(), 25565);
+        handlerClient = new HandlerClient(this, dial.txt_ip.getText(), 25565);
         handlerClient.start();
     }
 
     private void onEnterPressed() {
-
+        if (txt_input.getText() != "")
+            handlerClient.sendData("BETGIVEN", txt_input.getText());
     }
 
     public static void main(String[] args) {
         FormMain main = new FormMain();
+
 
         try {
             main.connectToServer();

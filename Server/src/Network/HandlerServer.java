@@ -17,6 +17,8 @@ public class HandlerServer extends Thread {
     private Socket socket;
     private Player player;
 
+    public Object betGiven = null;
+
     public HandlerServer(Socket socket, Player player) {
         this.socket = socket;
         this.player = player;
@@ -50,6 +52,9 @@ public class HandlerServer extends Thread {
                 } else {
                     sendData("NAMEACCEPT", false);
                 }
+                break;
+            case "BETGIVEN":
+                    betGiven = message.getPayload();
                 break;
             default:
                 sendData("UNKNOWN", null);
