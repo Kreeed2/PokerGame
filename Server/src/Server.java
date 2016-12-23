@@ -17,8 +17,16 @@ public class Server {
         try {
             table.getCardStack().fillStack();
 
-            while(table.playerAmount() < 4) {
+            while(table.playerAmount() < 3) {
                 table.addPlayer(new Player(listener.accept()));
+            }
+
+            while (table.allPlayersFinished()) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
 
             while (table.getRoundCounter() < 5) {

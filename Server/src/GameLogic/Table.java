@@ -2,8 +2,6 @@ package GameLogic;
 
 
 import GameLogic.enums.Role;
-import Network.Handler;
-import Network.Message;
 import Network.VarObserver;
 
 import java.io.*;
@@ -18,14 +16,19 @@ public class Table {
     HashSet<VarObserver> observers = new HashSet<>();
 
     protected int maxBet = 0;
+    private int blind = 100;
     private int roundCounter = 0;
     private int turnCounter = 0;
     private int dealerPos;
 
     public void broadcastToPlayers(String message) {
        for (Player out : players) {
-           out.handler.sendData("MESSAGE", message);
+           out.handlerServer.sendData("MESSAGE", message);
        }
+    }
+
+    public boolean allPlayersFinished() {
+        return players.stream().anyMatch(player -> player.getName().equals("ERROR"));
     }
 
     public int playerAmount() {
@@ -41,7 +44,12 @@ public class Table {
         return roundCounter;
     }
 
+    public Stack getOpenCards() {
+        return openCards;
+    }
+
     public void addPlayer(Player p) {
+
         players.add(p);
 
         VarObserver obs = new VarObserver(this);
@@ -79,6 +87,7 @@ public class Table {
         return comparePlayers;
     }
 
+    //TODO send message to clients who won
     private void distributePot(List<Player> winners) {
         if (winners.size() == 1) {
             //Allin
@@ -117,9 +126,22 @@ public class Table {
      * main game tick method; calls assignRole and distributeCards
      */
     public void nextTurn() {
+
+        //SERVER
+        turnMessage();
+        //
+
         distributeCards();
+
+        //SERVER
+        handCardMessage();
+        openCardMessage();
+        //
         if (turnCounter == 0) {
             assignRole();
+            //SERVER
+            roleMessage();
+            //
             preFlop();
         } else if (turnCounter == 3 || countActivePlayers() == 1) {
             distributePot(decideWinner());
@@ -131,9 +153,6 @@ public class Table {
         turnCounter++;
 
         System.out.println("-----------------------------------------------------------");
-
-        //SERVER
-        sendAktivePlayer();
     }
 
     private void nextRound() {
@@ -146,20 +165,26 @@ public class Table {
         maxBet = 0;
         turnCounter = 0;
         roundCounter++;
+
     }
 
     /**
      * special preflop bet
      */
     private void preFlop() {
+
         int firstDefault = dealerPos;
 
-        int blind = 100;
+        //int blind = 100;
         if (players.size() > 2) {
             players.get((dealerPos + 1) % players.size()).placeBet(blind / 2, this);
             players.get((dealerPos + 2) % players.size()).placeBet(blind, this);
 
             firstDefault = (dealerPos + 3) % players.size();
+
+            //SERVER
+            blindMessage();
+            //
         } //only 2 players
         else {
             players.get(dealerPos).placeBet(blind / 2, this);
@@ -167,8 +192,14 @@ public class Table {
         }
         for (int j = firstDefault, i = 0; i < players.size(); i++, j = (j + 1) % players.size()) {
             while (players.get(j).isInRound()) {
-                if (players.get(j).placeBet(getUserInput(players.get(j)), this))
+                int bet = getUserInput(players.get(j));
+                if (players.get(j).placeBet(bet/*getUserInput(players.get(j))*/, this)) {
+
+                    //SERVER
+                    betMessage(players.get(j).getName(), bet);
+                    //
                     break;
+                }
             }
         }
         if (fixBets())
@@ -177,15 +208,19 @@ public class Table {
 
     private int getUserInput(Player p) {
 
-        System.out.println(openCards.toString() + "------------\n" + p.toString() + "\nBitte gib deinen Bet ein. (" + maxBet + ")");
-        InputStreamReader isr = new InputStreamReader(System.in);
-        BufferedReader br = new BufferedReader(isr);
-
+        p.handlerServer.sendData("BETSET" ,openCards.toString() + "Bitte gib deinen Bet ein. (" + maxBet + ")\n");
         while (true) {
-            try {
-                return Integer.parseInt(br.readLine());
-            } catch (IOException e) {
-                System.out.println("Bitte gib eine Zahl ein.");
+            if (p.handlerServer.betGiven != null) {
+                int out = Integer.parseInt((String) p.handlerServer.betGiven);
+                p.handlerServer.betGiven = null;
+                return out;
+            }
+            else {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -201,8 +236,14 @@ public class Table {
          */
         for (int j = posSmall, i = 0; i < players.size() && countActivePlayers() > 1; i++, j = (j + 1) % players.size()) {
             while (players.get(j).isInRound()) {
-                if (players.get(j).placeBet(getUserInput(players.get(j)), this))
+                int bet = getUserInput(players.get(j));
+                if (players.get(j).placeBet(bet/*getUserInput(players.get(j))*/, this)) {
+
+                    //SERVER
+                    betMessage(players.get(j).getName(), bet);
+                    //
                     break;
+                }
             }
         }
         if (fixBets())
@@ -237,33 +278,18 @@ public class Table {
                 players.stream().filter(Player::isInRound).forEach(player -> {
                     player.addCardToHand(cardStack.remove());
                     player.addCardToHand(cardStack.remove());
-
-                    //SERVER
-                    for (Player p : players) {
-                        sendToPlayer(p, "HANDCARDS", p.getHand());
-                    }
-                    //
                 });
                 break;
+
             case 1:
                 //drei offene Karten
                 for (int i = 0; i < 3; i++) {
                     openCards.add(cardStack.remove());
                 }
-
-                //SERVER
-                for (Player p : players) {
-                    sendToPlayer(p, "OPENCARDS", openCards);
-                }
-                //
                 break;
+
             default:
                 openCards.add(cardStack.remove());
-                //SERVER
-                for (Player p : players) {
-                    sendToPlayer(p, "OPENCARDS", openCards);
-                }
-                //
                 break;
         }
     }
@@ -288,31 +314,74 @@ public class Table {
             players.get((dealerPos + 1) % players.size()).setCurrentRole(Role.SMALL);
             players.get((dealerPos + 2) % players.size()).setCurrentRole(Role.BIG);
         }
-
-        //SERVER STUFF
-        HashMap<String, Integer> roles = new HashMap<>();
-
-        for (Player p : players) {
-            roles.put(p.getName(), p.getCurrentRole().ordinal());
-        }
-        for (Player p : players) {
-            sendToPlayer(p, "ROLEMAP", roles);
-        }
     }
 
     //SERVER
 
-    public void sendToPlayer(Player p, String header, Object payload){
-        p.handler.sendData(header, payload);
+    public void sendToHandler(Player p, String header, Object payload){
+        p.handlerServer.sendData(header, payload);
     }
 
-    public void sendAktivePlayer(){
-        HashMap<String, Boolean>actives = new HashMap<>();
-        for (Player p : players) {
-            actives.put(p.getName(), p.isInRound());
+    public void turnMessage() {
+        Map<String, Integer> playerChips = new HashMap<>();
+        for(Player p: players){
+            playerChips.put(p.getName(), p.getChips());
         }
         for (Player p : players) {
-            sendToPlayer(p, "AKTIVEPLAYERS", p.getHand());
+            sendToHandler(p, "PLAYERCHIPS", playerChips);
+        }
+
+        int pot = 0;
+        for (Player p : players) {
+            pot += p.getPlayerPot();
+        }
+        for (Player p : players) {
+            sendToHandler(p, "POT", pot);
+        }
+    }
+
+    public void roleMessage() {
+        Map<String, Integer> roles = new HashMap<>();
+        for(Player p: players){
+            if (p.isInRound())
+                roles.put(p.getName(), p.getCurrentRole().ordinal());
+        }
+
+        for (Player p : players) {
+            if (p.isInRound())
+                sendToHandler(p, "ROLE", roles);
+        }
+    }
+
+    public void handCardMessage(){
+        if (turnCounter == 0) {
+            for (Player p : players) {
+                if (p.isInRound())
+                    sendToHandler(p, "HANDCARDS", p.getHand());
+            }
+        }
+    }
+
+    public void openCardMessage() {
+        for (Player p : players) {
+            if (p.isInRound())
+                sendToHandler(p, "OPENCARDS", getOpenCards());
+        }
+    }
+
+    public void betMessage(String name, int bet) {
+        Map<String, Integer> playerBet = new HashMap<>();
+        playerBet.put(name, bet);
+        for (Player p: players) {
+            if (p.isInRound())
+                sendToHandler(p, "BET", playerBet);
+        }
+    }
+
+    public void blindMessage() {
+        for (Player p: players) {
+            if (p.isInRound())
+                sendToHandler(p, "BLINDS", blind);
         }
     }
 }
