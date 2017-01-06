@@ -75,11 +75,11 @@ public class HandlerClient extends Thread {
                 break;
             case "HANDCARDS":
                 cards = (Stack) message.getPayload();
-                main.textAreaCards.setText(cards.toString());
+                //main.textAreaCards.setText(cards.toString());
                 break;
             case "OPENCARDS":
                 cards.addStack((Stack) message.getPayload());
-                main.textAreaCards.setText(cards.toString());
+                //main.textAreaCards.setText(cards.toString());
                 break;
             case "BET":
                 Map<String, Integer> playerBets = (Map<String, Integer>) message.getPayload();

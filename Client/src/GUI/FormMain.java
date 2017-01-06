@@ -3,6 +3,7 @@ package GUI;
 import Network.HandlerClient;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
@@ -11,7 +12,7 @@ public class FormMain extends JFrame{
     private JPanel contentPanel;
     public JTextArea textArea;
     private JTextField txt_input;
-    public JTextArea textAreaCards;
+    private JPanel panelGame;
 
     public DialogLogin dial = new DialogLogin();
     private HandlerClient handlerClient;
@@ -22,6 +23,7 @@ public class FormMain extends JFrame{
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
+        panelGame.add(new Texture());
 
         txt_input.addKeyListener(new KeyAdapter() {
             @Override

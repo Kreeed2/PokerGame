@@ -363,9 +363,11 @@ public class Table {
     }
 
     public void openCardMessage() {
-        for (Player p : players) {
-            if (p.isInRound())
-                sendToHandler(p, "OPENCARDS", getOpenCards());
+        if (turnCounter > 0) {
+            for (Player p : players) {
+                if (p.isInRound())
+                    sendToHandler(p, "OPENCARDS", getOpenCards());
+            }
         }
     }
 
