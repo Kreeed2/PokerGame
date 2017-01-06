@@ -54,10 +54,6 @@ public class Player extends Observable {
         return chips;
     }
 
-    public Stack getHand() {
-        return hand;
-    }
-
     public void addChips(int amount) {
         chips += amount;
     }
@@ -133,6 +129,10 @@ public class Player extends Observable {
         }
         return hv;
 
+    }
+
+    public Stack getHand() {
+        return hand;
     }
 
     public boolean isInRound() {

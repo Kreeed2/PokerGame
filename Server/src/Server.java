@@ -1,8 +1,12 @@
 import GameLogic.Player;
 import GameLogic.Table;
+import Network.DatabaseObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class Server {
@@ -13,9 +17,13 @@ public class Server {
         log.info("Starte Server");
         ServerSocket listener = new ServerSocket(PORT);
         Table table = new Table();
+        List<DatabaseObject>  database = new LinkedList<>();
 
         try {
             table.getCardStack().fillStack();
+            //File textFile = new File("databse.dat");
+
+            //while ()
 
             while(table.playerAmount() < 3) {
                 table.addPlayer(new Player(listener.accept()));
@@ -32,6 +40,7 @@ public class Server {
             while (table.getRoundCounter() < 5) {
                 table.nextTurn();
             }
+
         } finally {
             listener.close();
         }
