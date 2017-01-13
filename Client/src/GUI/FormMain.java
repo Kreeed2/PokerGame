@@ -1,5 +1,7 @@
 package GUI;
 
+import GameLogic.Stack;
+import GameLogic.enums.Role;
 import Network.HandlerClient;
 
 import javax.swing.*;
@@ -12,10 +14,13 @@ public class FormMain extends JFrame{
     private JPanel contentPanel;
     public JTextArea textArea;
     private JTextField txt_input;
-    private JPanel panelGame;
+    public JPanel panelGame;
 
     public DialogLogin dial = new DialogLogin();
     private HandlerClient handlerClient;
+
+    public Stack cards;
+    public Role role;
 
     public FormMain() {
         super();
@@ -23,7 +28,6 @@ public class FormMain extends JFrame{
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
-        panelGame.add(new Texture());
 
         txt_input.addKeyListener(new KeyAdapter() {
             @Override
@@ -34,6 +38,7 @@ public class FormMain extends JFrame{
                 }
             }
         });
+
     }
 
     protected void connectToServer() throws IOException {
@@ -49,7 +54,6 @@ public class FormMain extends JFrame{
 
     public static void main(String[] args) {
         FormMain main = new FormMain();
-
 
         try {
             main.connectToServer();
