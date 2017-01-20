@@ -8,18 +8,23 @@ import java.io.Serializable;
 class Card implements PokerCard, Serializable {
     private final Value value;
     private final Color color;
-    private final Texture texture;
+    private Texture texture;
 
-    public Card(Value value, Color color) {
+
+    public Card(Value value, Color color, Boolean ClientSide) {
         this.value = value;
         this.color = color;
 
         //TODO INDICATE REMOTE
-        texture = new Texture(value.name().toUpperCase() + "_" + color.name().toUpperCase() + ".png");
+        if (ClientSide)
+            texture = new Texture(value.name().toUpperCase() + "_" + color.name().toUpperCase() + ".png");
     }
 
     public Texture getTexture() {
-        return texture;
+        if (texture != null)
+            return texture;
+        else
+            return null;
     }
 
     public Value getValue() {

@@ -13,7 +13,7 @@ public class Texture extends Canvas{
     private AffineTransform transform;
 
     public Texture(String fileName) {
-        imgFileName = "../cardTexture/" + fileName + ".png";
+        imgFileName = "../cardTexture/" + fileName;
         URL imgUrl = getClass().getResource(imgFileName);
         transform = new AffineTransform();
         transform.scale(0.25,0.25);
@@ -36,15 +36,18 @@ public class Texture extends Canvas{
         g2D.drawImage(img, transform, null);
     }
 
-    public void translate(double dx, double dy) {
+    public Canvas translate(double dx, double dy) {
         transform.translate(dx, dy);
+        return this;
     }
 
-    public void rotate(double theta) {
+    public Canvas rotate(double theta) {
         transform.rotate(theta);
+        return this;
     }
 
-    public void scale(double sx, double sy) {
+    public Canvas scale(double sx, double sy) {
         transform.scale(sx, sy);
+        return this;
     }
 }

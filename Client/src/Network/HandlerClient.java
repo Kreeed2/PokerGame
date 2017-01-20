@@ -1,6 +1,7 @@
 package Network;
 
 import GUI.FormMain;
+import GameLogic.Card;
 import GameLogic.Stack;
 import GameLogic.enums.Role;
 import handChecker.PokerCard;
@@ -45,6 +46,7 @@ public class HandlerClient extends Thread {
     }
 
     public void answerNetwork(Message message) throws IOException {
+        main.textArea.setText("");
         switch (message.getHeader()) {
             case "NAMEADD":
                 sendData("NAME", main.dial.txt_name.getText());
@@ -74,8 +76,14 @@ public class HandlerClient extends Thread {
                 playerRoles.forEach((s, integer) -> main.textArea.append("Der Spieler " + s + " ist " + Role.values()[integer] + ".\n"));
                 break;
             case "HANDCARDS":
-                main.cards = (Stack) message.getPayload();
-
+                copyStacks(((Stack) message.getPayload()));
+                double offset = 20d;
+                for (PokerCard card : main.cards.getCards()) {
+                    double posX = (main.panelGame.getX()/2)-offset;
+                    double posY = (main.panelGame.getY()-100);
+                    main.panelGame.add(((Card) card).getTexture().translate(posX, posY));
+                    offset*=2;
+                }
                 //main.textAreaCards.setText(cards.toString());
                 break;
             case "OPENCARDS":
@@ -104,6 +112,13 @@ public class HandlerClient extends Thread {
                 main.textArea.append("Fehlerhafte Message: " + message.getHeader());
                 //sendData("UNKNOWN", null);
                 break;
+        }
+    }
+
+    private void copyStacks(Stack server) {
+        main.cards = new Stack();
+        for (PokerCard card : server.getCards()) {
+            main.cards.add(new Card(card.getValue(), card.getColor(), true));
         }
     }
 

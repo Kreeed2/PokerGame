@@ -5,6 +5,7 @@ import GameLogic.enums.Role;
 import Network.HandlerClient;
 
 import javax.swing.*;
+import javax.swing.text.DefaultCaret;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -27,6 +28,7 @@ public class FormMain extends JFrame{
         setContentPane(contentPanel);
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
         setVisible(true);
 
         txt_input.addKeyListener(new KeyAdapter() {
