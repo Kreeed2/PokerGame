@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -50,16 +51,44 @@ public class HandlerClient extends Thread {
         main.textArea.setText("");
         switch (message.getHeader()) {
             case "NAMEADD":
-                sendData("NAME", main.dial.txt_name.getText());
+                /*Map<String, String> namePass = new HashMap<>();
+                namePass.put(main.dial.txt_name.getText(), main.dial.txt_pass.getText());
+                sendData("NAMEPASS", namePass);*/
+                sendData("NAMEPASS", main.dial.txt_name.getText() + ":" + main.dial.txt_pass.getText());
+                //sendData("NAME", main.dial.txt_name.getText());
                 break;
             case "NAMEACCEPT":
                if ((boolean)message.getPayload())
                    main.textArea.append("Name wurde akzeptiert!\n");
                else {
-                   main.textArea.append("Name wurde abgelehnt!\n");
-                   System.exit(0);
+                   //main.textArea.append("Name wurde abgelehnt!\n");
+                   main.dial.showDialog("Name bereits vergeben", "");
+                   while (!main.dial.isReady())
+                       try {
+                           currentThread().sleep(1000);
+                       } catch (InterruptedException e) {
+                           e.printStackTrace();
+                       }
+                   sendData("NAMEPASS", main.dial.txt_name.getText() + ":" + main.dial.txt_pass.getText());
+                   //System.exit(0);
                }
                break;
+            case "PASSACCEPT":
+                if ((boolean)message.getPayload())
+                    main.textArea.append("Passwort wurde akzeptiert!\n");
+                else {
+                    main.textArea.append("Falsches Passwort!\n");
+                    main.dial.showDialog("", "falsches Passwort");
+                    while (!main.dial.isReady())
+                        try {
+                            currentThread().sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    sendData("NAMEPASS", main.dial.txt_name.getText() + ":" + main.dial.txt_pass.getText());
+                    //System.exit(0);
+                }
+                break;
             case "REMOVE":
                 //TODO make leave proper
                 System.exit(0);

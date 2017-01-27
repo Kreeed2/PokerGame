@@ -48,6 +48,10 @@ public class Table {
         return openCards;
     }
 
+    public List<Player> getPlayers() {
+        return players;
+    }
+
     public void addPlayer(Player p) {
 
         players.add(p);

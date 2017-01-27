@@ -2,10 +2,9 @@ package Network;
 
 import GameLogic.Player;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,11 +44,35 @@ public class HandlerServer extends Thread {
 
     public void answerNetwork(Message message) throws IOException {
         switch (message.getHeader()) {
-            case "NAME":
-                if (message.getPayload() instanceof String && message.getPayload() != "") {
+            /*case "NAME":
+                //if (message.getPayload() instanceof String && message.getPayload() != "") {
+                if (nameAccepted(message)) {
                     sendData("NAMEACCEPT", true);
                     player.setName((String) message.getPayload());
-                    log.info("Name geändert");
+                    log.info("Name geändert zu " + message.getPayload());
+                } else {
+                    sendData("NAMEACCEPT", false);
+                }
+                break;*/
+            case "NAMEPASS":
+                if (message.getPayload() instanceof String && message.getPayload() != "") {
+                    String namePass = (String) message.getPayload();
+                    String splitString[] = namePass.split(":");
+                    String name = splitString[0];
+                    String pass = splitString[1];
+                    if (nameAccepted(name)) {
+                        sendData("NAMEACCEPT", true);
+                        if (passAccepted(pass, name)){
+                            sendData("PASSACCEPT", true);
+                            player.setNamePass(name, pass);
+                            log.info("Name geändert zu " + name);
+                        } else {
+                            sendData("PASSACCEPT", false);
+                        }
+                    }  else {
+                        sendData("NAMEACCEPT", false);
+                        //sendData("PASSACCEPT", true);
+                    }
                 } else {
                     sendData("NAMEACCEPT", false);
                 }
@@ -81,5 +104,55 @@ public class HandlerServer extends Thread {
         } catch (IOException e) {
             log.log(Level.SEVERE, e.getMessage());
         }
+    }
+
+    public boolean nameAccepted(String name) {
+        if (name != "") {
+            for (Player p : player.getTable().getPlayers()) {
+                System.out.println(p.getName());
+                if (name.equals(p.getName())) {
+                    return false;
+                }
+            }
+        } else {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean passAccepted(String pass, String name) {
+        boolean rturn = true;
+        if (pass != "") {
+            File file = new File("Userdata.txt");
+
+            if (!file.canRead() || !file.isFile())
+                System.exit(0);
+
+            BufferedReader in = null;
+            try {
+                in = new BufferedReader(new FileReader("Userdata.txt"));
+                String line = null;
+                while ((line = in.readLine()) != null) {
+                    String splitString[] = line.split(":");
+                    if (name.equals(splitString[0])) {
+                        if (!pass.equals(splitString[1])) {
+                            rturn = false;
+                            break;
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (in != null)
+                    try {
+                        in.close();
+                    } catch (IOException e) {
+                    }
+            }
+        } else {
+            rturn = false;
+        }
+        return rturn;
     }
 }

@@ -17,7 +17,7 @@ public class Server {
         log.info("Starte Server");
         ServerSocket listener = new ServerSocket(PORT);
         Table table = new Table();
-        List<DatabaseObject> database = new LinkedList<>();
+        List<DatabaseObject>  database = new LinkedList<>();
 
         try {
             table.getCardStack().fillStack();
