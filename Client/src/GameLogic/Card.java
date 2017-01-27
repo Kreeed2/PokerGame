@@ -11,23 +11,14 @@ public class Card implements PokerCard, Serializable {
     private Texture texture;
 
     public Card(Value value, Color color) {
-        this(value, color, false);
-    }
-
-    public Card(Value value, Color color, Boolean ClientSide) {
         this.value = value;
         this.color = color;
-
-        //TODO INDICATE REMOTE
-        if (ClientSide)
-            texture = new Texture(value.name().toUpperCase() + "_" + color.name().toUpperCase() + ".png");
     }
 
-    public Texture getTexture() {
-        if (texture != null)
-            return texture;
-        else
-            return null;
+    public Texture getTexture(int width, int height) {
+        if (texture == null)
+            texture = new Texture(value.name().toUpperCase() + "_" + color.name().toUpperCase() + ".png", width, height);
+        return texture;
     }
 
     public Value getValue() {
@@ -42,4 +33,3 @@ public class Card implements PokerCard, Serializable {
         return value.toString().toLowerCase() + " of " + color.toString().toLowerCase();
     }
 }
-

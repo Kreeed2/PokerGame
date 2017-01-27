@@ -1,22 +1,26 @@
 package GUI;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.net.URL;
 
-public class Texture extends Canvas{
+public class Texture extends JPanel{
 
     private String imgFileName;
     private Image img;
-    private AffineTransform transform;
+    private int width, height;
 
-    public Texture(String fileName) {
+    public Texture(String fileName, int width, int height) {
+        super();
+        this.width = width;
+        this.height = height;
+
+        this.setPreferredSize(new Dimension(width, height));
+
         imgFileName = "../cardTexture/" + fileName;
         URL imgUrl = getClass().getResource(imgFileName);
-        transform = new AffineTransform();
-        transform.scale(0.25,0.25);
 
         if (imgUrl == null) {
             System.err.println("Couldn't find file: " + imgFileName);
@@ -33,21 +37,6 @@ public class Texture extends Canvas{
     public void paint(Graphics g) {
         Graphics2D g2D = (Graphics2D) g;
 
-        g2D.drawImage(img, transform, null);
-    }
-
-    public Canvas translate(double dx, double dy) {
-        transform.translate(dx, dy);
-        return this;
-    }
-
-    public Canvas rotate(double theta) {
-        transform.rotate(theta);
-        return this;
-    }
-
-    public Canvas scale(double sx, double sy) {
-        transform.scale(sx, sy);
-        return this;
+        g2D.drawImage(img.getScaledInstance(width,height,Image.SCALE_SMOOTH),0,0,null);
     }
 }

@@ -1,8 +1,10 @@
 package GUI;
 
+import GameLogic.Card;
 import GameLogic.Stack;
 import GameLogic.enums.Role;
 import Network.HandlerClient;
+import handChecker.PokerCard;
 
 import javax.swing.*;
 import javax.swing.text.DefaultCaret;
@@ -10,17 +12,22 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.util.Vector;
 
 public class FormMain extends JFrame{
     private JPanel contentPanel;
     public JTextArea textArea;
     private JTextField txt_input;
     public JPanel panelGame;
+    public JPanel panelHandcards;
+    public JPanel panelOpencards;
+    public JPanel panelOpponents;
 
     public DialogLogin dial = new DialogLogin();
     private HandlerClient handlerClient;
 
     public Stack cards;
+    public Stack openCards = new Stack();
     public Role role;
 
     public FormMain() {

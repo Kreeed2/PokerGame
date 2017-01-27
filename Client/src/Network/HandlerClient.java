@@ -11,6 +11,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Map;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -77,17 +78,17 @@ public class HandlerClient extends Thread {
                 break;
             case "HANDCARDS":
                 copyStacks(((Stack) message.getPayload()));
-                double offset = 20d;
                 for (PokerCard card : main.cards.getCards()) {
-                    double posX = (main.panelGame.getX()/2)-offset;
-                    double posY = (main.panelGame.getY()-100);
-                    main.panelGame.add(((Card) card).getTexture().translate(posX, posY));
-                    offset*=2;
+                    main.panelHandcards.add(((Card) card).getTexture(125,182));
                 }
+                main.panelHandcards.updateUI();
                 //main.textAreaCards.setText(cards.toString());
                 break;
             case "OPENCARDS":
-                main.cards.addStack((Stack) message.getPayload());
+                main.openCards.addStack((Stack) message.getPayload());
+                for (PokerCard card : main.openCards.getCards()) {
+                    main.panelOpencards.add(((Card) card).getTexture(125,182));
+                }
                 //main.textAreaCards.setText(cards.toString());
                 break;
             case "BET":
@@ -118,7 +119,7 @@ public class HandlerClient extends Thread {
     private void copyStacks(Stack server) {
         main.cards = new Stack();
         for (PokerCard card : server.getCards()) {
-            main.cards.add(new Card(card.getValue(), card.getColor(), true));
+            main.cards.add(new Card(card.getValue(), card.getColor()));
         }
     }
 
