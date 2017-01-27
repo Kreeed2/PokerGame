@@ -1,8 +1,10 @@
 package Network;
 
 import GUI.FormMain;
+import GameLogic.Card;
 import GameLogic.Stack;
 import GameLogic.enums.Role;
+import handChecker.PokerCard;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -21,8 +23,7 @@ public class HandlerClient extends Thread {
     private Socket socket;
 
     FormMain main;
-    Stack cards;
-    Role role;
+
 
     public HandlerClient(FormMain main, String serverAddress, int port) throws IOException {
         this.main = main;
@@ -46,6 +47,7 @@ public class HandlerClient extends Thread {
     }
 
     public void answerNetwork(Message message) throws IOException {
+        main.textArea.setText("");
         switch (message.getHeader()) {
             case "NAMEADD":
                 /*Map<String, String> namePass = new HashMap<>();
@@ -99,15 +101,22 @@ public class HandlerClient extends Thread {
                 break;
             case "ROLE":
                 Map<String, Integer> playerRoles = (Map<String, Integer>) message.getPayload();
-                role = Role.values()[playerRoles.get(main.dial.txt_name.getText())];
+                main.role = Role.values()[playerRoles.get(main.dial.txt_name.getText())];
                 playerRoles.forEach((s, integer) -> main.textArea.append("Der Spieler " + s + " ist " + Role.values()[integer] + ".\n"));
                 break;
             case "HANDCARDS":
-                cards = (Stack) message.getPayload();
+                copyStacks(((Stack) message.getPayload()));
+                double offset = 20d;
+                for (PokerCard card : main.cards.getCards()) {
+                    double posX = (main.panelGame.getX()/2)-offset;
+                    double posY = (main.panelGame.getY()-100);
+                    main.panelGame.add(((Card) card).getTexture().translate(posX, posY));
+                    offset*=2;
+                }
                 //main.textAreaCards.setText(cards.toString());
                 break;
             case "OPENCARDS":
-                cards.addStack((Stack) message.getPayload());
+                main.cards.addStack((Stack) message.getPayload());
                 //main.textAreaCards.setText(cards.toString());
                 break;
             case "BET":
@@ -118,9 +127,9 @@ public class HandlerClient extends Thread {
                 main.textArea.append((String) message.getPayload() + "\n");
                 break;
             case "BLINDS":
-                if (role == Role.BIG)
+                if (main.role == Role.BIG)
                     main.textArea.append("Du hast den Blind (" + message.getPayload() + ") gesetzt\n");
-                else if (role == Role.SMALL || role == Role.DEALERSPECIAL)
+                else if (main.role == Role.SMALL || main.role == Role.DEALERSPECIAL)
                     main.textArea.append("Du hast den SBlind (" + ((Integer) message.getPayload())/2 + ") gesetzt\n");
                 else
                     main.textArea.append("Der Blind (" + message.getPayload() + ") wurde gesetzt\n");
@@ -132,6 +141,13 @@ public class HandlerClient extends Thread {
                 main.textArea.append("Fehlerhafte Message: " + message.getHeader());
                 //sendData("UNKNOWN", null);
                 break;
+        }
+    }
+
+    private void copyStacks(Stack server) {
+        main.cards = new Stack();
+        for (PokerCard card : server.getCards()) {
+            main.cards.add(new Card(card.getValue(), card.getColor(), true));
         }
     }
 

@@ -37,6 +37,7 @@ public class HandlerServer extends Thread {
                 answerNetwork((Message) in.readObject());
             }
         } catch (ClassNotFoundException | IOException e) {
+
             Logger.getGlobal().log(Level.SEVERE, e.getMessage());
         }
     }
