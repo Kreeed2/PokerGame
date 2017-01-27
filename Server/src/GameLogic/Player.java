@@ -21,15 +21,28 @@ public class Player extends Observable {
     private HandValue hv;
     private boolean inRound = true;
     private int playerPot = 0;
+    private Table table;
 
     private String name = "ERROR";
+    private String pass = "ERROR";
     private int chips = 10000;
 
     public String getName() {
         return name;
     }
 
+    public String getPass() {
+        return pass;
+    }
+
     public Player(Socket socket) {
+        handlerServer = new HandlerServer(socket, this);
+        handlerServer.start();
+        handlerServer.sendData("NAMEADD", null);
+    }
+
+    public Player(Socket socket, Table table) {
+        this.table = table;
         handlerServer = new HandlerServer(socket, this);
         handlerServer.start();
         handlerServer.sendData("NAMEADD", null);
@@ -48,6 +61,17 @@ public class Player extends Observable {
         this.name = name;
         setChanged();
         notifyObservers(name);
+    }
+
+    public void setNamePass(String name, String pass) {
+        this.name = name;
+        this.pass = pass;
+        setChanged();
+        notifyObservers(name);
+    }
+
+    public Table getTable() {
+        return table;
     }
 
     public int getChips() {
