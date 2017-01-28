@@ -106,7 +106,7 @@ public class HandlerServer extends Thread {
     public boolean nameAccepted(String name) {
         if (name != "") {
             for (Player p : player.getTable().getPlayers()) {
-                System.out.println(p.getName());
+                //System.out.println(p.getName());
                 if (name.equals(p.getName())) {
                     return false;
                 }

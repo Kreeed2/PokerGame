@@ -2,8 +2,7 @@ import GameLogic.Player;
 import GameLogic.Table;
 import Network.DatabaseObject;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,7 +25,8 @@ public class Server {
             //while ()
 
             while(table.playerAmount() < 4) {
-                table.addPlayer(new Player(listener.accept()));
+                //table.addPlayer(new Player(listener.accept()));
+                table.addPlayer(new Player(listener.accept(), table));
             }
 
             while (table.allPlayersFinished()) {
@@ -37,6 +37,10 @@ public class Server {
                 }
             }
 
+            for (Player p : table.getPlayers()) {
+                editTextFile(p.getName(), p.getPass());
+            }
+
             while (table.getRoundCounter() < 5) {
                 table.nextTurn();
             }
@@ -45,4 +49,47 @@ public class Server {
             listener.close();
         }
     }
+
+    static public void editTextFile(String name, String pass) {
+        if (namePassAccept(name + ":" + pass)) {
+                PrintWriter pWriter = null;
+            try {
+                pWriter = new PrintWriter(new FileWriter("userdata.txt", true), true);
+                pWriter.println(name + ":" + pass);
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            } finally {
+                if (pWriter != null) {
+                    pWriter.flush();
+                    pWriter.close();
+                }
+            }
+        }
+    }
+
+        static public boolean namePassAccept(String namePass) {
+            File file = new File("Userdata.txt");
+                if (!file.canRead() || !file.isFile())
+                    System.exit(0);
+                BufferedReader in = null;
+            try {
+                in = new BufferedReader(new FileReader("Userdata.txt"));
+                String line = null;
+                while ((line = in.readLine()) != null) {
+                    if (namePass.equals(line)) {
+                        return false;
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (in != null){
+                    try {
+                    in.close();
+                } catch (IOException e) {
+                }
+                }
+            }
+            return true;
+        }
 }

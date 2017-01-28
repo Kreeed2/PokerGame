@@ -59,12 +59,12 @@ public class HandlerClient extends Thread {
                 /*Map<String, String> namePass = new HashMap<>();
                 namePass.put(main.dial.txt_name.getText(), main.dial.txt_pass.getText());
                 sendData("NAMEPASS", namePass);*/
-                //sendData("NAMEPASS", main.dial.txt_name.getText() + ":" + main.dial.txt_pass.getText());
-                sendData("NAME", main.dial.txt_name.getText());
+                sendData("NAMEPASS", main.dial.txt_name.getText() + ":" + main.dial.txt_pass.getText());
+                //sendData("NAME", main.dial.txt_name.getText());
                 break;
             case "NAMEACCEPT":
                if ((boolean)message.getPayload()) {
-                   main.textArea.append("Name wurde akzeptiert!\n");
+                   //main.textArea.append("Name wurde akzeptiert!\n");
 
                } else {
                    //main.textArea.append("Name wurde abgelehnt!\n");
@@ -80,10 +80,10 @@ public class HandlerClient extends Thread {
                }
                break;
             case "PASSACCEPT":
-                if ((boolean)message.getPayload())
-                    main.textArea.append("Passwort wurde akzeptiert!\n");
+                if ((boolean)message.getPayload());
+                    //main.textArea.append("Passwort wurde akzeptiert!\n");
                 else {
-                    main.textArea.append("Falsches Passwort!\n");
+                    //main.textArea.append("Falsches Passwort!\n");
                     main.dial.showDialog("", "falsches Passwort");
                     while (!main.dial.isReady())
                         try {
