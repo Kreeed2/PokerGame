@@ -50,6 +50,8 @@ public class FormMain extends JFrame{
 
     }
 
+
+
     protected void connectToServer() throws IOException {
         dial.showDialog();
         handlerClient = new HandlerClient(this, dial.txt_ip.getText(), 25565);
@@ -57,8 +59,10 @@ public class FormMain extends JFrame{
     }
 
     private void onEnterPressed() {
-        if (txt_input.getText() != "")
+        if (txt_input.getText() != "") {
             handlerClient.sendData("BETGIVEN", txt_input.getText());
+            txt_input.setText("");
+        }
     }
 
     public static void main(String[] args) {

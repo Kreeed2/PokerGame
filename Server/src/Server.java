@@ -25,7 +25,7 @@ public class Server {
 
             //while ()
 
-            while(table.playerAmount() < 3) {
+            while(table.playerAmount() < 4) {
                 table.addPlayer(new Player(listener.accept()));
             }
 

@@ -5,13 +5,18 @@ import GameLogic.Card;
 import GameLogic.Stack;
 import GameLogic.enums.Role;
 import handChecker.PokerCard;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 
+import javax.swing.*;
+import javax.swing.border.Border;
+import java.awt.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,6 +37,7 @@ public class HandlerClient extends Thread {
 
         out = new ObjectOutputStream(socket.getOutputStream());
         in = new ObjectInputStream(socket.getInputStream());
+
     }
 
     @Override
@@ -48,19 +54,19 @@ public class HandlerClient extends Thread {
     }
 
     public void answerNetwork(Message message) throws IOException {
-        main.textArea.setText("");
         switch (message.getHeader()) {
             case "NAMEADD":
                 /*Map<String, String> namePass = new HashMap<>();
                 namePass.put(main.dial.txt_name.getText(), main.dial.txt_pass.getText());
                 sendData("NAMEPASS", namePass);*/
-                sendData("NAMEPASS", main.dial.txt_name.getText() + ":" + main.dial.txt_pass.getText());
-                //sendData("NAME", main.dial.txt_name.getText());
+                //sendData("NAMEPASS", main.dial.txt_name.getText() + ":" + main.dial.txt_pass.getText());
+                sendData("NAME", main.dial.txt_name.getText());
                 break;
             case "NAMEACCEPT":
-               if ((boolean)message.getPayload())
+               if ((boolean)message.getPayload()) {
                    main.textArea.append("Name wurde akzeptiert!\n");
-               else {
+
+               } else {
                    //main.textArea.append("Name wurde abgelehnt!\n");
                    main.dial.showDialog("Name bereits vergeben", "");
                    while (!main.dial.isReady())
@@ -91,41 +97,79 @@ public class HandlerClient extends Thread {
                 break;
             case "REMOVE":
                 //TODO make leave proper
+                close();
                 System.exit(0);
                 break;
             case "PLAYERCHIPS":
                 Map<String, Integer> playerChips = (Map<String, Integer>) message.getPayload();
-                playerChips.forEach((s, integer) -> main.textArea.append("Der Spieler " + s + " besitzt " + integer + " Chips.\n"));
+
+                String names[] = new String[playerChips.keySet().size()];
+                playerChips.keySet().toArray(names);
+                for (int i = 0; i < names.length; i++) {
+                        ((JLabel) ((JPanel) main.panelOpponents.getComponents()[i]).getComponents()[0]).setText(names[i]);
+                        ((JLabel) ((JPanel) ((JPanel) main.panelOpponents.getComponents()[i]).getComponents()[1]).getComponent(4)).setText(playerChips.get(names[i]).toString());
+                }
+
+                //COLOR OWN PANEL
+                try {
+                    findPlayerPanel(main.dial.txt_name.getText()).setBorder(BorderFactory.createLineBorder(Color.RED));
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
                 break;
             case "POT":
                 main.textArea.append("Der Pot liegt bei " + message.getPayload() + ".\n");
                 break;
             case "ROLE":
                 Map<String, Integer> playerRoles = (Map<String, Integer>) message.getPayload();
-                main.role = Role.values()[playerRoles.get(main.dial.txt_name.getText())];
-                playerRoles.forEach((s, integer) -> main.textArea.append("Der Spieler " + s + " ist " + Role.values()[integer] + ".\n"));
+
+                String names1[] = new String[playerRoles.keySet().size()];
+                playerRoles.keySet().toArray(names1);
+                for (int i = 0; i < names1.length; i++) {
+                    ((JLabel) ((JPanel) ((JPanel) main.panelOpponents.getComponents()[i]).getComponents()[1]).getComponent(5)).setText(Role.values()[playerRoles.get(names1[i])].name());
+                }
                 break;
             case "HANDCARDS":
-                copyStacks(((Stack) message.getPayload()));
-                for (PokerCard card : main.cards.getCards()) {
-                    main.panelHandcards.add(((Card) card).getTexture(125,182));
+                if (main.cards == null) {
+                    main.cards = ((Stack) message.getPayload());
+                    for (PokerCard card : main.cards.getCards()) {
+                        main.panelHandcards.add(((Card) card).getTexture(125, 182));
+                    }
+                    main.panelHandcards.updateUI();
                 }
-                main.panelHandcards.updateUI();
-                //main.textAreaCards.setText(cards.toString());
                 break;
             case "OPENCARDS":
-                main.openCards.addStack((Stack) message.getPayload());
-                for (PokerCard card : main.openCards.getCards()) {
+                Stack localStack = (Stack) message.getPayload();
+                main.openCards.addStack(localStack);
+                for (PokerCard card : localStack.getCards()) {
                     main.panelOpencards.add(((Card) card).getTexture(125,182));
                 }
-                //main.textAreaCards.setText(cards.toString());
+                main.panelHandcards.updateUI();
                 break;
             case "BET":
                 Map<String, Integer> playerBets = (Map<String, Integer>) message.getPayload();
-                playerBets.forEach((s, integer) -> main.textArea.append("Der Spieler " + s + " hat " + integer + " gesetzt.\n"));
+
+                playerBets.forEach((s, integer) -> {
+                    try {
+                        ((JLabel) ((JPanel) findPlayerPanel(s).getComponent(1)).getComponent(7)).setText(integer.toString());
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                });
+                break;
+            case "INROUND":
+                Map<String, Boolean> playerInRound = (Map<String, Boolean>) message.getPayload();
+
+                playerInRound.forEach((s, aBoolean) -> {
+                    try {
+                        ((JLabel) ((JPanel) findPlayerPanel(s).getComponent(1)).getComponent(6)).setText(aBoolean.toString());
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                });
                 break;
             case "MESSAGE":
-                main.textArea.append((String) message.getPayload() + "\n");
+                main.textArea.append("MESSAGE: " + message.getPayload() + "\n");
                 break;
             case "BLINDS":
                 if (main.role == Role.BIG)
@@ -145,11 +189,13 @@ public class HandlerClient extends Thread {
         }
     }
 
-    private void copyStacks(Stack server) {
-        main.cards = new Stack();
-        for (PokerCard card : server.getCards()) {
-            main.cards.add(new Card(card.getValue(), card.getColor()));
+    private JPanel findPlayerPanel(String name) throws Exception {
+        Component[] components = main.panelOpponents.getComponents();
+        for (Component component : components) {
+            if (Objects.equals(((JLabel) ((JPanel) component).getComponent(0)).getText(), name))
+                return ((JPanel) component);
         }
+        throw new Exception("Element Not Found");
     }
 
     public boolean sendData(String header, Object payload) {

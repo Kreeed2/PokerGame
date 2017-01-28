@@ -44,16 +44,13 @@ public class HandlerServer extends Thread {
 
     public void answerNetwork(Message message) throws IOException {
         switch (message.getHeader()) {
-            /*case "NAME":
-                //if (message.getPayload() instanceof String && message.getPayload() != "") {
-                if (nameAccepted(message)) {
+            case "NAME":
+                if (message.getPayload() instanceof String && message.getPayload() != "") {
                     sendData("NAMEACCEPT", true);
                     player.setName((String) message.getPayload());
                     log.info("Name geändert zu " + message.getPayload());
-                } else {
-                    sendData("NAMEACCEPT", false);
                 }
-                break;*/
+                break;
             case "NAMEPASS":
                 if (message.getPayload() instanceof String && message.getPayload() != "") {
                     String namePass = (String) message.getPayload();

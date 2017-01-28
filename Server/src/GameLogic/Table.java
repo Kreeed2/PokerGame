@@ -186,33 +186,38 @@ public class Table {
 
             firstDefault = (dealerPos + 3) % players.size();
 
-            //SERVER
-            blindMessage();
-            //
         } //only 2 players
         else {
             players.get(dealerPos).placeBet(blind / 2, this);
             players.get((dealerPos + 1) % players.size()).placeBet(blind, this);
         }
+
+        for (Player p : players) {
+            betMessage(p.getName(), p.getPlayerPot());
+        }
+
         for (int j = firstDefault, i = 0; i < players.size(); i++, j = (j + 1) % players.size()) {
             while (players.get(j).isInRound()) {
                 int bet = getUserInput(players.get(j));
-                if (players.get(j).placeBet(bet/*getUserInput(players.get(j))*/, this)) {
+                if (players.get(j).placeBet(bet, this)) {
 
                     //SERVER
-                    betMessage(players.get(j).getName(), bet);
-                    //
+                    for (Player p : players) {
+                        betMessage(p.getName(), p.getPlayerPot());
+                    }
+
                     break;
                 }
             }
         }
+
         if (fixBets())
             playerBet();
     }
 
     private int getUserInput(Player p) {
 
-        p.handlerServer.sendData("BETSET" ,openCards.toString() + "Bitte gib deinen Bet ein. (" + maxBet + ")\n");
+        p.handlerServer.sendData("BETSET" ,"Bitte gib deinen Bet ein. (" + maxBet + ")\n");
         while (true) {
             if (p.handlerServer.betGiven != null) {
                 int out = Integer.parseInt((String) p.handlerServer.betGiven);
@@ -241,15 +246,17 @@ public class Table {
         for (int j = posSmall, i = 0; i < players.size() && countActivePlayers() > 1; i++, j = (j + 1) % players.size()) {
             while (players.get(j).isInRound()) {
                 int bet = getUserInput(players.get(j));
-                if (players.get(j).placeBet(bet/*getUserInput(players.get(j))*/, this)) {
-
-                    //SERVER
-                    betMessage(players.get(j).getName(), bet);
-                    //
+                if (players.get(j).placeBet(bet, this)) {
                     break;
                 }
             }
         }
+
+        //SERVER
+        for (Player p : players) {
+            betMessage(p.getName(), p.getPlayerPot());
+        }
+
         if (fixBets())
             playerBet();
     }
@@ -322,11 +329,11 @@ public class Table {
 
     //SERVER
 
-    public void sendToHandler(Player p, String header, Object payload){
+    private void sendToHandler(Player p, String header, Object payload){
         p.handlerServer.sendData(header, payload);
     }
 
-    public void turnMessage() {
+    private void turnMessage() {
         Map<String, Integer> playerChips = new HashMap<>();
         for(Player p: players){
             playerChips.put(p.getName(), p.getChips());
@@ -344,50 +351,51 @@ public class Table {
         }
     }
 
-    public void roleMessage() {
+    private void roleMessage() {
         Map<String, Integer> roles = new HashMap<>();
         for(Player p: players){
-            if (p.isInRound())
-                roles.put(p.getName(), p.getCurrentRole().ordinal());
+            roles.put(p.getName(), p.getCurrentRole().ordinal());
         }
 
         for (Player p : players) {
-            if (p.isInRound())
-                sendToHandler(p, "ROLE", roles);
+            sendToHandler(p, "ROLE", roles);
         }
     }
 
-    public void handCardMessage(){
+    private void inRoundMessage() {
+        Map<String, Boolean> inRound = new HashMap<>();
+
+        for(Player p: players){
+            inRound.put(p.getName(), p.isInRound());
+        }
+
+        for (Player player : players) {
+            sendToHandler(player, "INROUND" , inRound);
+        }
+    }
+
+    private void handCardMessage(){
         if (turnCounter == 0) {
             for (Player p : players) {
-                if (p.isInRound())
-                    sendToHandler(p, "HANDCARDS", p.getHand());
+                sendToHandler(p, "HANDCARDS", p.getHand());
             }
         }
     }
 
-    public void openCardMessage() {
+    private void openCardMessage() {
         if (turnCounter > 0) {
             for (Player p : players) {
-                if (p.isInRound())
-                    sendToHandler(p, "OPENCARDS", getOpenCards());
+                sendToHandler(p, "OPENCARDS", getOpenCards());
             }
         }
     }
 
-    public void betMessage(String name, int bet) {
+    private void betMessage(String name, int bet) {
+        inRoundMessage();
         Map<String, Integer> playerBet = new HashMap<>();
         playerBet.put(name, bet);
         for (Player p: players) {
-            if (p.isInRound())
-                sendToHandler(p, "BET", playerBet);
-        }
-    }
-
-    public void blindMessage() {
-        for (Player p: players) {
-            if (p.isInRound())
-                sendToHandler(p, "BLINDS", blind);
+            sendToHandler(p, "BET", playerBet);
         }
     }
 }
