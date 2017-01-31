@@ -34,7 +34,7 @@ public class Stack implements Serializable {
      * removes the card at index 0 and returns it
      * @return the removed card
      */
-    public PokerCard remove() {
+    PokerCard remove() {
         return cards.remove(0);
     }
 

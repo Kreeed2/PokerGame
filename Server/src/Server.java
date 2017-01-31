@@ -10,22 +10,17 @@ import java.util.logging.Logger;
 
 public class Server {
     private static final Logger log = Logger.getGlobal();
-    static int PORT = 25565;
+    private static int PORT = 25565;
 
     public static void main(String[] args) throws IOException {
         log.info("Starte Server");
         ServerSocket listener = new ServerSocket(PORT);
-        Table table = new Table();
-        List<DatabaseObject>  database = new LinkedList<>();
 
         try {
+            Table table = new Table();
             table.getCardStack().fillStack();
-            //File textFile = new File("databse.dat");
 
-            //while ()
-
-            while(table.playerAmount() < 4) {
-                //table.addPlayer(new Player(listener.accept()));
+            while(table.playerAmount() < 2) {
                 table.addPlayer(new Player(listener.accept(), table));
             }
 
@@ -44,15 +39,14 @@ public class Server {
             while (table.getRoundCounter() < 5) {
                 table.nextTurn();
             }
-
         } finally {
             listener.close();
         }
     }
 
-    static public void editTextFile(String name, String pass) {
+    private static void editTextFile(String name, String pass) {
         if (namePassAccept(name + ":" + pass)) {
-                PrintWriter pWriter = null;
+            PrintWriter pWriter = null;
             try {
                 pWriter = new PrintWriter(new FileWriter("userdata.txt", true), true);
                 pWriter.println(name + ":" + pass);
@@ -67,14 +61,11 @@ public class Server {
         }
     }
 
-        static public boolean namePassAccept(String namePass) {
-            File file = new File("Userdata.txt");
-                if (!file.canRead() || !file.isFile())
-                    System.exit(0);
-                BufferedReader in = null;
+        private static boolean namePassAccept(String namePass) {
+            BufferedReader in = null;
             try {
-                in = new BufferedReader(new FileReader("Userdata.txt"));
-                String line = null;
+                in = new BufferedReader(new FileReader("userdata.txt"));
+                String line;
                 while ((line = in.readLine()) != null) {
                     if (namePass.equals(line)) {
                         return false;
@@ -87,7 +78,8 @@ public class Server {
                     try {
                     in.close();
                 } catch (IOException e) {
-                }
+                        System.out.println(e.getMessage());
+                    }
                 }
             }
             return true;

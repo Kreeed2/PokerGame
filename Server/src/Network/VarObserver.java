@@ -15,6 +15,6 @@ public class VarObserver implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        table.broadcastToPlayers("Spieler " + arg + " ist dem Spiel beigetreten.");
+        table.broadcastToPlayers("MESSAGE", "Spieler " + arg + " ist dem Spiel beigetreten.");
     }
 }

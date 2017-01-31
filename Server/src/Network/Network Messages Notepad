@@ -22,3 +22,5 @@ OPENCARDS | Stack opencards; to all player
 BET | Map(String Playername, int Bet); to all Player
 BLINDS | int blind; to all Player
 BETSET | auffordeung bet zu geben (String)
+INROUND
+NEXTROUND

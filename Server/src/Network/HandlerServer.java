@@ -5,6 +5,7 @@ import GameLogic.Player;
 import java.io.*;
 import java.net.Socket;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,7 +43,7 @@ public class HandlerServer extends Thread {
         }
     }
 
-    public void answerNetwork(Message message) throws IOException {
+    private void answerNetwork(Message message) throws IOException {
         switch (message.getHeader()) {
             case "NAME":
                 if (message.getPayload() instanceof String && message.getPayload() != "") {
@@ -86,7 +87,6 @@ public class HandlerServer extends Thread {
     public boolean sendData(String header, Object payload) {
         try {
             out.writeObject(new Message(header, payload));
-            out.flush();
             return true;
         } catch (IOException e) {
             log.log(Level.SEVERE, e.getMessage());
@@ -103,10 +103,9 @@ public class HandlerServer extends Thread {
         }
     }
 
-    public boolean nameAccepted(String name) {
-        if (name != "") {
+    private boolean nameAccepted(String name) {
+        if (!Objects.equals(name, "")) {
             for (Player p : player.getTable().getPlayers()) {
-                //System.out.println(p.getName());
                 if (name.equals(p.getName())) {
                     return false;
                 }
@@ -117,18 +116,27 @@ public class HandlerServer extends Thread {
         return true;
     }
 
-    public boolean passAccepted(String pass, String name) {
+    private boolean passAccepted(String pass, String name) {
         boolean rturn = true;
-        if (pass != "") {
-            File file = new File("Userdata.txt");
+        if (!Objects.equals(pass, "")) {
+            File file = new File("userdata.txt");
 
-            if (!file.canRead() || !file.isFile())
-                System.exit(0);
+            if(!file.exists())
+                try {
+                    file.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            if (!file.canRead() || !file.isFile()) {
+                System.out.println("HandlerServer.passAccepted couldn't open file");
+                System.exit(1);
+            }
 
             BufferedReader in = null;
             try {
-                in = new BufferedReader(new FileReader("Userdata.txt"));
-                String line = null;
+                in = new BufferedReader(new FileReader("userdata.txt"));
+                String line;
                 while ((line = in.readLine()) != null) {
                     String splitString[] = line.split(":");
                     if (name.equals(splitString[0])) {
@@ -145,6 +153,7 @@ public class HandlerServer extends Thread {
                     try {
                         in.close();
                     } catch (IOException e) {
+                        System.out.println(e.getMessage());
                     }
             }
         } else {

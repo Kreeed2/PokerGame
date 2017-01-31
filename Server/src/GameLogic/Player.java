@@ -101,7 +101,7 @@ public class Player extends Observable {
         hand.clearCards();
     }
 
-    public void addCardToHand(PokerCard card) {
+    void addCardToHand(PokerCard card) {
         hand.add(card);
     }
 
@@ -111,7 +111,7 @@ public class Player extends Observable {
      * @param table current Table player is playing on
      * @return whether or not amount was correct
      */
-    public boolean placeBet(int amount, Table table) {
+    boolean placeBet(int amount, Table table) {
         //fold
         if (amount < 0) {
             inRound = false;
@@ -134,11 +134,11 @@ public class Player extends Observable {
             return false;
     }
 
-    public Role getCurrentRole() {
+    Role getCurrentRole() {
         return currentRole;
     }
 
-    public void setCurrentRole(Role r) {
+    void setCurrentRole(Role r) {
         currentRole = r;
     }
 
@@ -146,24 +146,30 @@ public class Player extends Observable {
         return Stream.concat(hand.getCards().stream(), openCards.stream()).collect(Collectors.toList());
     }
 
-    public HandValue getHandValue(List<PokerCard> openCards) {
+    HandValue getHandValue(List<PokerCard> openCards) {
         if (hv == null) {
             HandChecker handChecker = new HandChecker();
             hv = handChecker.check(getCompleteHand(openCards));
         }
         return hv;
-
     }
 
-    public Stack getHand() {
+    void resetForNextRound() {
+        hv = null;
+        inRound = true;
+        hand.clearCards();
+        currentRole = Role.DEFAULT;
+    }
+
+    Stack getHand() {
         return hand;
     }
 
-    public boolean isInRound() {
+    boolean isInRound() {
         return inRound;
     }
 
-    public void leaveRound() {
+    void leaveRound() {
         inRound = false;
     }
 
