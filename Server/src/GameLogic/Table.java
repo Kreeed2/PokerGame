@@ -184,7 +184,7 @@ public class Table {
 
         } //only 2 players
         else {
-            players.get(dealerPos).placeBet(blind / 2, this);
+            players.get(dealerPos % players.size()).placeBet(blind / 2, this);
             players.get((dealerPos + 1) % players.size()).placeBet(blind, this);
         }
 
