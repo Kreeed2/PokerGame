@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "Z21FqdLMq60=",
+  "success": true,
+  "projectFilePath": "/app/Server.Dotnet/PokerProject.Server.csproj",
+  "expectedPackageFiles": [
+    "/home/jules/.nuget/packages/system.text.json/9.0.8/system.text.json.9.0.8.nupkg.sha512"
+  ],
+  "logs": []
+}

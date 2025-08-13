@@ -1,0 +1,12 @@
+/app/Shared/bin/Debug/net9.0/PokerProject.Shared.deps.json
+/app/Shared/bin/Debug/net9.0/PokerProject.Shared.dll
+/app/Shared/bin/Debug/net9.0/PokerProject.Shared.pdb
+/app/Shared/obj/Debug/net9.0/PokerProject.Shared.GeneratedMSBuildEditorConfig.editorconfig
+/app/Shared/obj/Debug/net9.0/PokerProject.Shared.AssemblyInfoInputs.cache
+/app/Shared/obj/Debug/net9.0/PokerProject.Shared.AssemblyInfo.cs
+/app/Shared/obj/Debug/net9.0/PokerProject.Shared.csproj.CoreCompileInputs.cache
+/app/Shared/obj/Debug/net9.0/PokerProject.Shared.sourcelink.json
+/app/Shared/obj/Debug/net9.0/PokerProject.Shared.dll
+/app/Shared/obj/Debug/net9.0/refint/PokerProject.Shared.dll
+/app/Shared/obj/Debug/net9.0/PokerProject.Shared.pdb
+/app/Shared/obj/Debug/net9.0/ref/PokerProject.Shared.dll
